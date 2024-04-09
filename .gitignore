@@ -10,6 +10,15 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+HELP.md
+target/
+.mvn
+mvnw.*
+mvnw
+
+# Ignore spring local profile property files
+*-local.*
+
 # Package Files #
 *.jar
 *.war
@@ -29,9 +38,7 @@ replay_pid*
 .classpath
 .project
 
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+
 
 ### STS ###
 .apt_generated
