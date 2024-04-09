@@ -17,6 +17,8 @@ import net.expenses.recorder.repository.UserRepository;
 import net.expenses.recorder.service.UserService;
 import net.expenses.recorder.utils.CommonConstants;
 import net.expenses.recorder.validation.UserValidationHelper;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -30,6 +32,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class UserServiceImpl implements UserService, CommonConstants {
     private final UserRepository userRepository;
     private final JWTManager jwtManager;
@@ -46,6 +49,7 @@ public class UserServiceImpl implements UserService, CommonConstants {
         return optionalUser.orElse(null);
     }
 
+    @Transactional
     @Override
     public ResponseDto userLogin(UserLoginFormDto userLoginFormDto) {
         // Validates Login form
@@ -60,6 +64,8 @@ public class UserServiceImpl implements UserService, CommonConstants {
             if (!user.getHashedPassword().equals(hashedPassword)) {
                 throw new BadCredentialException("Password mismatch");
             }
+            user.setLoggedOut(false);
+            userRepository.save(user);
             String token = jwtManager.generateToken(user);
             return new JwtTokenDto(JWT_BEARER, TOKEN_EXPIRY_SECONDS, token);
         } catch (NoSuchAlgorithmException exception) {
@@ -105,12 +111,22 @@ public class UserServiceImpl implements UserService, CommonConstants {
             user.setHashedPassword(hashedPassword);
             user.setPhone(userRegistrationFormDto.getPhone());
             user.setDateCreated(Timestamp.from(Instant.now()));
+            user.setLoggedOut(false);
             userRepository.save(user);
 
             String token = jwtManager.generateToken(user);
             return new JwtTokenDto(JWT_BEARER, TOKEN_EXPIRY_SECONDS, token);
         }
         throw new UserRegistrationException("User Registration Failed. User already exists with same email or phone.");
+    }
+
+    @Transactional
+    @Override
+    public ResponseDto userLogout() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        user.setLoggedOut(true);
+        userRepository.save(user);
+        return null;
     }
 
     private String createPasswordHash(String password) throws NoSuchAlgorithmException {

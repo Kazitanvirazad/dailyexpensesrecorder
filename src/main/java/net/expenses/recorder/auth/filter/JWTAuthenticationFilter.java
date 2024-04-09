@@ -54,6 +54,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             if (user == null) {
                 throw new BadCredentialException("Unauthorised/Invalid Token.");
             }
+            if (user.getLoggedOut()) {
+                throw new BadCredentialException("Login required.");
+            }
             if (jwtManager.isTokenValid(token, user)) {
                 Authentication authentication = new JWTAuthenticationToken(user, AuthorityUtils.NO_AUTHORITIES);
                 SecurityContextHolder.getContext().setAuthentication(authentication);

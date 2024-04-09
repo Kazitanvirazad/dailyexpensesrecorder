@@ -37,17 +37,17 @@ public class User {
     @Column(name = "lastname", columnDefinition = "VARCHAR(50)")
     private String lastName;
 
-    @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = false)
+    @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone", columnDefinition = "VARCHAR(20)")
+    @Column(name = "phone", columnDefinition = "VARCHAR(20)", unique = true)
     private String phone;
 
     @Column(name = "hashedpassword", columnDefinition = "VARCHAR(150)", nullable = false)
     private String hashedPassword;
 
     @Column(name = "isloggedout", columnDefinition = "BOOL")
-    private Boolean isLoggedOut;
+    private Boolean loggedOut;
 
     @Column(name = "datecreated", columnDefinition = "TIMESTAMP")
     private Timestamp dateCreated;

@@ -22,4 +22,6 @@ public interface UserService {
     boolean isUserExistsByPhone(String phone);
 
     ResponseDto submitUserRegistration(UserRegistrationFormDto userRegistrationFormDto);
+
+    ResponseDto userLogout();
 }
