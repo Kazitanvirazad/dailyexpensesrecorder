@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * @author Kazi Tanvir Azad
@@ -45,5 +46,13 @@ public class CategoryServiceImpl implements CategoryService {
     public void modifyCategory(Category category) {
         if (category != null)
             categoryRepository.save(category);
+    }
+
+    @Override
+    public void modifyCategory(Consumer<Category> categoryConsumer, Category category) {
+        if (category != null) {
+            categoryConsumer.accept(category);
+            categoryRepository.save(category);
+        }
     }
 }

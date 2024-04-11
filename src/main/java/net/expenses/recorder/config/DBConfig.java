@@ -43,6 +43,10 @@ public class DBConfig {
     private String DATASOURCE_DRIVER_CLASS_NAME;
     @Value("${hibernate.hbm2ddl.auto}")
     private String HIBERNATE_HBM2DDL_AUTO;
+    @Value("${datasource.dbname}")
+    private String DB_NAME;
+    @Value("${datasource.schema}")
+    private String DATASOURCE_SCHEMA;
 
     @Bean(name = "datasource")
     public DataSource getDataSource() {
@@ -66,7 +70,7 @@ public class DBConfig {
                 new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setDataSource(getDataSource());
         localContainerEntityManagerFactoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
-        localContainerEntityManagerFactoryBean.setPackagesToScan("net.uncrack.server.api.app.dao");
+        localContainerEntityManagerFactoryBean.setPackagesToScan("net.expenses.recorder.dao");
         localContainerEntityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         localContainerEntityManagerFactoryBean.setJpaProperties(properties);
         return localContainerEntityManagerFactoryBean;

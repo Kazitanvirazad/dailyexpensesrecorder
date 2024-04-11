@@ -43,10 +43,10 @@ public class Item {
     private Double totalAmount;
 
     @ManyToOne
-    @Column(name = "entryno", columnDefinition = "UUID")
+    @JoinColumn(name = "entryno", columnDefinition = "UUID")
     private Entry entry;
 
-    @Column(name = "description", columnDefinition = "VARCHAR(100")
+    @Column(name = "description", columnDefinition = "VARCHAR(100)")
     private String description;
 
     @ManyToOne

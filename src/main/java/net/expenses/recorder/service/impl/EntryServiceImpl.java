@@ -3,16 +3,24 @@ package net.expenses.recorder.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.expenses.recorder.dao.Entry;
+import net.expenses.recorder.dao.Item;
 import net.expenses.recorder.dao.User;
 import net.expenses.recorder.dao.enums.Month;
 import net.expenses.recorder.exception.InvalidInputException;
 import net.expenses.recorder.repository.EntryRepository;
 import net.expenses.recorder.service.EntryService;
+import net.expenses.recorder.service.ItemService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * @author Kazi Tanvir Azad
@@ -21,6 +29,7 @@ import java.sql.Date;
 @RequiredArgsConstructor
 public class EntryServiceImpl implements EntryService {
     private final EntryRepository entryRepository;
+    private final ItemService itemService;
 
     @Transactional
     @Override
@@ -42,6 +51,36 @@ public class EntryServiceImpl implements EntryService {
     public void modifyEntry(Entry entry) {
         if (entry != null)
             entryRepository.save(entry);
+    }
+
+    @Transactional
+    @Override
+    public void modifyEntry(Consumer<Entry> entryConsumer, Entry entry) {
+        if (entry != null) {
+            entryConsumer.accept(entry);
+            entryRepository.save(entry);
+        }
+    }
+
+    @Override
+    public List<Entry> getAllEntries(User user) {
+        if (user == null) {
+            user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+        Optional<List<Entry>> optionalEntries = entryRepository.findAllByUser(user.getUserId());
+        return optionalEntries.orElseGet(ArrayList::new);
+    }
+
+    @Transactional
+    @Override
+    public void calculateEntryAmount(Entry entry) {
+        double sum = 0.0;
+        for (Item item : itemService.getItemsByEntry(entry)) {
+            sum += item.getTotalAmount();
+        }
+        BigDecimal bigDecimal = new BigDecimal(sum).setScale(2, RoundingMode.HALF_UP);
+        entry.setAmount(bigDecimal.doubleValue());
+        entryRepository.save(entry);
     }
 
     private Month getMonthByName(String monthName) {

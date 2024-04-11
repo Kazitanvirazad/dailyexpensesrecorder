@@ -17,8 +17,6 @@ public class UserRegistrationFormDto implements RequestDto, Serializable {
     @Serial
     private static final long serialVersionUID = 7475042033491116377L;
 
-    private Long userId;
-
     private String firstName;
 
     private String lastName;
