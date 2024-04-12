@@ -1,4 +1,4 @@
-package net.expenses.recorder.auth;
+package net.expenses.recorder.security;
 
 import net.expenses.recorder.dao.User;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

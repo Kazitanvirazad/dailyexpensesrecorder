@@ -1,13 +1,17 @@
 package net.expenses.recorder.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.expenses.recorder.dao.User;
 import net.expenses.recorder.dto.ResponseDto;
+import net.expenses.recorder.dto.UserLoginFormDto;
 import net.expenses.recorder.dto.UserRegistrationFormDto;
 import net.expenses.recorder.service.UserService;
 import net.expenses.recorder.utils.CommonApiConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,5 +30,24 @@ public class UserController implements CommonApiConstants {
     public ResponseEntity<ResponseDto> submitUserRegistration(@RequestBody UserRegistrationFormDto userRegistrationFormDto) {
         ResponseDto responseDto = userService.submitUserRegistration(userRegistrationFormDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    @PostMapping(path = LOGIN_API, consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ResponseDto> loginUser(@RequestBody UserLoginFormDto userLoginFormDto) {
+        ResponseDto responseDto = userService.userLogin(userLoginFormDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.ACCEPTED);
+    }
+
+    @PostMapping(path = LOGOUT_API, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ResponseDto> logoutUser() {
+        ResponseDto responseDto = userService.userLogout();
+        return new ResponseEntity<>(responseDto, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping(path = "/test", produces = {MediaType.TEXT_PLAIN_VALUE})
+    public ResponseEntity<String> getUser() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return ResponseEntity.ok(user.getFirstName() + " " + user.getLastName());
     }
 }

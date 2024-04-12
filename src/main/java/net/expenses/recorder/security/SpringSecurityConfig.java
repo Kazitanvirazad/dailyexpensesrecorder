@@ -1,11 +1,12 @@
-package net.expenses.recorder.auth;
+package net.expenses.recorder.security;
 
 import lombok.RequiredArgsConstructor;
-import net.expenses.recorder.auth.filter.JWTAuthenticationFilter;
+import net.expenses.recorder.security.filter.JWTAuthenticationFilter;
 import net.expenses.recorder.utils.CommonApiConstants;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -24,14 +25,16 @@ public class SpringSecurityConfig implements CommonApiConstants {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
+    @Order(value = 1)
     public SecurityFilterChain jwtSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .securityMatcher(SPRING_SECURITY_JWT_ENDPOINTS)
                 .csrf(CsrfConfigurer::disable)
-                .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sessionManagementConfigurer ->
+                        sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
-                    authorizationManagerRequestMatcherRegistry.requestMatchers(SPRING_SECURITY_JWT_ENDPOINTS).permitAll();
-                    authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
+                    authorizationManagerRequestMatcherRegistry.requestMatchers(SPRING_SECURITY_JWT_ENDPOINTS).authenticated();
+                    authorizationManagerRequestMatcherRegistry.anyRequest().permitAll();
                 })
                 .httpBasic(HttpBasicConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -40,7 +43,7 @@ public class SpringSecurityConfig implements CommonApiConstants {
 
     @Bean
     public FilterRegistrationBean<JWTAuthenticationFilter> jwtAuthenticationFilterRegistrationBean() {
-        FilterRegistrationBean<JWTAuthenticationFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+        FilterRegistrationBean<JWTAuthenticationFilter> filterRegistrationBean = new FilterRegistrationBean<>(jwtAuthenticationFilter);
         filterRegistrationBean.setFilter(jwtAuthenticationFilter);
         filterRegistrationBean.addUrlPatterns(SPRING_SECURITY_JWT_ENDPOINTS);
         filterRegistrationBean.setOrder(1);

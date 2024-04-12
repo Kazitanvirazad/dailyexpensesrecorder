@@ -1,4 +1,4 @@
-package net.expenses.recorder.auth;
+package net.expenses.recorder.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -38,6 +38,9 @@ public class JWTManager implements CommonConstants {
 
     public String getTokenFromHttpRequest(HttpServletRequest httpServletRequest) {
         String authorizationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        if (!StringUtils.hasText(authorizationHeader) || !authorizationHeader.startsWith(JWT_BEARER)) {
+            throw new BadCredentialException("Missing authorization bearer token");
+        }
         String[] splitAuthorizationHeader = authorizationHeader.split(SINGLE_WHITESPACE);
         if (splitAuthorizationHeader.length > 1 && StringUtils.hasText(splitAuthorizationHeader[1])) {
             return splitAuthorizationHeader[1];

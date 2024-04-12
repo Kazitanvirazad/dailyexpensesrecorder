@@ -1,14 +1,15 @@
-package net.expenses.recorder.auth.filter;
+package net.expenses.recorder.security.filter;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import net.expenses.recorder.auth.JWTAuthenticationToken;
-import net.expenses.recorder.auth.JWTManager;
 import net.expenses.recorder.dao.User;
 import net.expenses.recorder.exception.BadCredentialException;
+import net.expenses.recorder.security.JWTAuthenticationToken;
+import net.expenses.recorder.security.JWTManager;
 import net.expenses.recorder.service.UserService;
 import net.expenses.recorder.validation.UserValidationHelper;
 import org.springframework.http.HttpStatus;
@@ -47,7 +48,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = jwtManager.getTokenFromHttpRequest(request);
             String email = jwtManager.getSubject(token);
-            if (UserValidationHelper.isValidEmail(email)) {
+            if (!UserValidationHelper.isValidEmail(email)) {
                 throw new BadCredentialException("Unauthorised/Invalid Token.");
             }
             User user = userService.getUserByEmail(email);
@@ -55,17 +56,21 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 throw new BadCredentialException("Unauthorised/Invalid Token.");
             }
             if (user.getLoggedOut()) {
-                throw new BadCredentialException("Login required.");
+                throw new BadCredentialException("Login required. User is already logged out.");
             }
             if (jwtManager.isTokenValid(token, user)) {
                 Authentication authentication = new JWTAuthenticationToken(user, AuthorityUtils.NO_AUTHORITIES);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 filterChain.doFilter(request, response);
+            } else {
+                throw new BadCredentialException("Token Expired.");
             }
-            throw new BadCredentialException("Token Expired.");
         } catch (BadCredentialException exception) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.getWriter().write(exception.getMessage());
+        } catch (JwtException exception) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("Unauthorised/Invalid Token.");
         }
     }
 }
