@@ -103,6 +103,18 @@
         </dependency>
     </dependencies>
 
+    <developers>
+        <developer>
+            <name>Kazi Tanvir Azad</name>
+            <email>tanvir.kaziazad@gmail.com</email>
+            <roles>
+                <role>Java Developer</role>
+                <role>Application Development Expert in AWS</role>
+            </roles>
+            <url>https://www.linkedin.com/in/kazitanvirazad/</url>
+        </developer>
+    </developers>
+
     <build>
         <finalName>DAILYEXPENSESRECORDER</finalName>
         <plugins>
