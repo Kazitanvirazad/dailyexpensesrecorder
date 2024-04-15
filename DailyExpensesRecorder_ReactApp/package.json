@@ -1,0 +1,42 @@
+{
+  "name": "dailyexpensesrecorder",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.0.3",
+    "bootstrap": "^5.3.3",
+    "js-cookie": "^3.0.5",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.8.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.15.0",
+    "react-select": "^5.7.4",
+    "vite": "^4.4.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6"
+  },
+  "author": {
+    "name": "Kazi Tanvir Azad",
+    "email": "tanvir.kaziazad@gmail.com",
+    "url": "https://www.linkedin.com/in/kazitanvirazad"
+  },
+  "repository": {
+    "url": "https://github.com/Kazitanvirazad/dailyexpensesrecorder.git"
+  },
+  "engines": {
+    "node": "v18.16.0"
+  }
+}

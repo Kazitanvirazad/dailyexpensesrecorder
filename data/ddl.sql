@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.user (
     hashedpassword VARCHAR(150) NOT NULL,
     isloggedout BOOL,
     datecreated TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    CONSTRAINT PK_user PRIMARY KEY (userid)
+    avatarid SERIAL,
+    CONSTRAINT PK_user PRIMARY KEY (userid),
+    CONSTRAINT FK_avatar_user FOREIGN KEY (avatarid) REFERENCES EXPENSE_RECORDER.avatar(avatarid)
 );
 
 CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.category (
@@ -57,4 +59,11 @@ CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.item (
     CONSTRAINT FK_entry_item FOREIGN KEY (entryno) REFERENCES EXPENSE_RECORDER.entry(entryno),
     CONSTRAINT FK_user_item FOREIGN KEY (userid) REFERENCES EXPENSE_RECORDER.user(userid),
     CONSTRAINT FK_category_item FOREIGN KEY (categoryid) REFERENCES EXPENSE_RECORDER.category(categoryid)
+);
+
+CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.avatar(
+    avatarid SERIAL,
+    avatarencoded TEXT,
+    isdefaultavatar BOOL,
+    CONSTRAINT PK_avatar PRIMARY KEY (avatarid)
 );

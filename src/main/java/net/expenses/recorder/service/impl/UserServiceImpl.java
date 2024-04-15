@@ -3,10 +3,12 @@ package net.expenses.recorder.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.expenses.recorder.dao.Avatar;
 import net.expenses.recorder.dao.User;
 import net.expenses.recorder.dto.APIResponseDto;
 import net.expenses.recorder.dto.JwtTokenDto;
 import net.expenses.recorder.dto.ResponseDto;
+import net.expenses.recorder.dto.UserDto;
 import net.expenses.recorder.dto.UserLoginFormDto;
 import net.expenses.recorder.dto.UserRegistrationFormDto;
 import net.expenses.recorder.exception.BadCredentialException;
@@ -16,6 +18,7 @@ import net.expenses.recorder.exception.UserLogoutException;
 import net.expenses.recorder.exception.UserRegistrationException;
 import net.expenses.recorder.repository.UserRepository;
 import net.expenses.recorder.security.JWTManager;
+import net.expenses.recorder.service.AvatarService;
 import net.expenses.recorder.service.UserService;
 import net.expenses.recorder.utils.CommonConstants;
 import net.expenses.recorder.validation.UserValidationHelper;
@@ -38,6 +41,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService, CommonConstants {
     private final UserRepository userRepository;
     private final JWTManager jwtManager;
+    private final AvatarService avatarService;
 
     @Override
     public User getUserByEmail(String email) {
@@ -118,6 +122,9 @@ public class UserServiceImpl implements UserService, CommonConstants {
         user.setPhone(userRegistrationFormDto.getPhone());
         user.setDateCreated(Timestamp.from(Instant.now()));
         user.setLoggedOut(false);
+
+        Avatar avatar = avatarService.getDefaultAvatar();
+        user.setAvatar(avatar);
         userRepository.save(user);
 
         String token = jwtManager.generateToken(user);
@@ -136,6 +143,13 @@ public class UserServiceImpl implements UserService, CommonConstants {
         return APIResponseDto.builder()
                 .setMessage("User is logged out!")
                 .build();
+    }
+
+    @Override
+    public UserDto getUserDetail() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Avatar avatar = user.getAvatar();
+        return new UserDto(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhone(), avatar != null ? avatar.getAvatarEncodedImage() : null);
     }
 
     private String createPasswordHash(String password) throws NoSuchAlgorithmException {

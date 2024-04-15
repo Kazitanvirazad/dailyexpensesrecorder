@@ -2,6 +2,7 @@ package net.expenses.recorder.service;
 
 import net.expenses.recorder.dao.User;
 import net.expenses.recorder.dto.ResponseDto;
+import net.expenses.recorder.dto.UserDto;
 import net.expenses.recorder.dto.UserLoginFormDto;
 import net.expenses.recorder.dto.UserRegistrationFormDto;
 
@@ -24,4 +25,6 @@ public interface UserService {
     ResponseDto submitUserRegistration(UserRegistrationFormDto userRegistrationFormDto);
 
     ResponseDto userLogout();
+
+    UserDto getUserDetail();
 }

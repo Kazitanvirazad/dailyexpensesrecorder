@@ -1,0 +1,18 @@
+package net.expenses.recorder.repository;
+
+import net.expenses.recorder.dao.Avatar;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+/**
+ * @author Kazi Tanvir Azad
+ */
+@Repository
+public interface AvatarRepository extends JpaRepository<Avatar, Integer> {
+
+    @Query(value = "SELECT a FROM EXPENSE_RECORDER.avatar a WHERE a.isdefaultavatar = 16", nativeQuery = true)
+    Optional<Avatar> getDefaultAvatar();
+}

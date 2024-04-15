@@ -3,9 +3,11 @@ package net.expenses.recorder.security;
 import lombok.RequiredArgsConstructor;
 import net.expenses.recorder.security.filter.JWTAuthenticationFilter;
 import net.expenses.recorder.utils.CommonApiConstants;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,6 +16,8 @@ import org.springframework.security.config.annotation.web.configurers.HttpBasicC
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author Kazi Tanvir Azad
@@ -21,8 +25,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@PropertySource(value = {"classpath:security-config-${spring.profiles.active}.properties"})
 public class SpringSecurityConfig implements CommonApiConstants {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("#{'${reactapp.url}'.split(',')}")
+    private String[] reactApp_urls;
 
     @Bean
     @Order(value = 1)
@@ -48,5 +56,15 @@ public class SpringSecurityConfig implements CommonApiConstants {
         filterRegistrationBean.addUrlPatterns(SPRING_SECURITY_JWT_ENDPOINTS);
         filterRegistrationBean.setOrder(1);
         return filterRegistrationBean;
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping(FILTER_MATCHER_PATTERN).allowedOrigins(reactApp_urls);
+            }
+        };
     }
 }

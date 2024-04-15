@@ -20,12 +20,13 @@ public interface CommonApiConstants extends CommonConstants {
     String DELETE_API = BASE + "delete";
     String NEW_API = BASE + "new";
     String SORT_API = BASE + "sort";
+    String DETAIL_API = BASE + "detail";
     String FILTER_MATCHER_PATTERN = BASE + "**";
     String[] SPRING_SECURITY_JWT_ENDPOINTS = {
-            USER_API + "/test" + FILTER_MATCHER_PATTERN,
             USER_API + LOGOUT_API + FILTER_MATCHER_PATTERN,
-            USER_API + CATEGORY_API + FILTER_MATCHER_PATTERN,
-            USER_API + ENTRY_API + FILTER_MATCHER_PATTERN,
-            USER_API + ITEM_API + FILTER_MATCHER_PATTERN
+            USER_API + DETAIL_API + FILTER_MATCHER_PATTERN,
+            CATEGORY_API + FILTER_MATCHER_PATTERN,
+            ENTRY_API + FILTER_MATCHER_PATTERN,
+            ITEM_API + FILTER_MATCHER_PATTERN,
     };
 }
