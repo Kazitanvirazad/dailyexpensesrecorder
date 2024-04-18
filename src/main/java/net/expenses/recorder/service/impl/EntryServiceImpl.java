@@ -10,6 +10,7 @@ import net.expenses.recorder.exception.InvalidInputException;
 import net.expenses.recorder.repository.EntryRepository;
 import net.expenses.recorder.service.EntryService;
 import net.expenses.recorder.service.ItemService;
+import net.expenses.recorder.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 public class EntryServiceImpl implements EntryService {
     private final EntryRepository entryRepository;
     private final ItemService itemService;
+    private final UserService userService;
 
     @Transactional
     @Override
@@ -43,6 +45,7 @@ public class EntryServiceImpl implements EntryService {
         entry.setMonthName(month);
         entry.setMonth(getEntryDate(month, year));
         entry.setDescription(description);
+        userService.incrementEntry(user);
         entryRepository.save(entry);
     }
 

@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.user (
     isloggedout BOOL,
     datecreated TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC'),
     avatarid SERIAL,
+    user_bio varchar(100),
+    entrycount INTEGER DEFAULT 0,
     CONSTRAINT PK_user PRIMARY KEY (userid),
     CONSTRAINT FK_avatar_user FOREIGN KEY (avatarid) REFERENCES EXPENSE_RECORDER.avatar(avatarid)
 );

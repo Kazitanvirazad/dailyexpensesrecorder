@@ -24,11 +24,14 @@ import net.expenses.recorder.utils.CommonConstants;
 import net.expenses.recorder.validation.UserValidationHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -122,6 +125,11 @@ public class UserServiceImpl implements UserService, CommonConstants {
         user.setPhone(userRegistrationFormDto.getPhone());
         user.setDateCreated(Timestamp.from(Instant.now()));
         user.setLoggedOut(false);
+        if (StringUtils.hasText(userRegistrationFormDto.getBio())) {
+            user.setBio(userRegistrationFormDto.getBio());
+        } else {
+            user.setBio(DEFAULT_BIO);
+        }
 
         Avatar avatar = avatarService.getDefaultAvatar();
         user.setAvatar(avatar);
@@ -149,7 +157,20 @@ public class UserServiceImpl implements UserService, CommonConstants {
     public UserDto getUserDetail() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Avatar avatar = user.getAvatar();
-        return new UserDto(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhone(), avatar != null ? avatar.getAvatarEncodedImage() : null);
+        Timestamp dateCreated = user.getDateCreated();
+        DateFormat dateFormat = new SimpleDateFormat("MMMM,yyyy");
+        String formattedDate = dateFormat.format(dateCreated);
+        return new UserDto(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhone(), formattedDate, user.getBio(), user.getEntryCount(), avatar != null ? avatar.getAvatarEncodedImage() : null);
+    }
+
+    @Transactional
+    @Override
+    public void incrementEntry(User user) {
+        if (user == null) {
+            user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+        int incrementedEntryCount = user.getEntryCount() + 1;
+        userRepository.incrementEntry(incrementedEntryCount, user.getUserId());
     }
 
     private String createPasswordHash(String password) throws NoSuchAlgorithmException {

@@ -22,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT u FROM User u WHERE u.email ILIKE :email OR u.phone ILIKE :phone")
     Optional<User> getReferenceByEmailOrPhone(@Param(value = "email") String email, @Param(value = "phone") String phone);
+
+    @Query(value = "UPDATE EXPENSE_RECORDER.user u SET u.entrycount = :count WHERE u.userid = :userId", nativeQuery = true)
+    void incrementEntry(@Param(value = "count") int count, @Param(value = "userId") Long userId);
 }

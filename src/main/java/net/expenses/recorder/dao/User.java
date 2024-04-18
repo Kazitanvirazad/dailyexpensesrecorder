@@ -54,4 +54,10 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "avatarid", columnDefinition = "SERIAL")
     private Avatar avatar;
+
+    @Column(name = "user_bio", columnDefinition = "varchar(100)")
+    private String bio;
+
+    @Column(name = "entrycount", columnDefinition = "INTEGER")
+    private Integer entryCount;
 }

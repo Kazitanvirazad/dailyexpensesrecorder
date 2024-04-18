@@ -3,7 +3,7 @@ package net.expenses.recorder.utils;
 /**
  * @author Kazi Tanvir Azad
  */
-public interface CommonConstants {
+public interface CommonConstants extends StaticTextResource {
     String SINGLE_WHITESPACE = " ";
     String JWT_BEARER = "Bearer";
     int TOKEN_EXPIRY_SECONDS = 3600;

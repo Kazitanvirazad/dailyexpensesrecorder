@@ -67,6 +67,22 @@ body {
     font-size: 15px
 }
 
+.logout-btn {
+    height: 35px;
+    width: 100px;
+    border: none;
+    background-color: #b23b3b;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.flex-bttn {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
 .text span {
     font-size: 13px;
     color: #545454;
