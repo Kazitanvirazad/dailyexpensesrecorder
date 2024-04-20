@@ -11,6 +11,7 @@ import net.expenses.recorder.dto.ResponseDto;
 import net.expenses.recorder.dto.UserDto;
 import net.expenses.recorder.dto.UserLoginFormDto;
 import net.expenses.recorder.dto.UserRegistrationFormDto;
+import net.expenses.recorder.dto.UserUpdateFormDto;
 import net.expenses.recorder.exception.BadCredentialException;
 import net.expenses.recorder.exception.InvalidInputException;
 import net.expenses.recorder.exception.ServerErrorException;
@@ -124,6 +125,7 @@ public class UserServiceImpl implements UserService, CommonConstants {
         user.setHashedPassword(hashedPassword);
         user.setPhone(userRegistrationFormDto.getPhone());
         user.setDateCreated(Timestamp.from(Instant.now()));
+        user.setEntryCount(0);
         user.setLoggedOut(false);
         if (StringUtils.hasText(userRegistrationFormDto.getBio())) {
             user.setBio(userRegistrationFormDto.getBio());
@@ -171,6 +173,13 @@ public class UserServiceImpl implements UserService, CommonConstants {
         }
         int incrementedEntryCount = user.getEntryCount() + 1;
         userRepository.incrementEntry(incrementedEntryCount, user.getUserId());
+    }
+
+    @Transactional
+    @Override
+    public ResponseDto updateUser(UserUpdateFormDto userUpdateFormDto) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return null;
     }
 
     private String createPasswordHash(String password) throws NoSuchAlgorithmException {

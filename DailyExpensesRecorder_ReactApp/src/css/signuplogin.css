@@ -12028,3 +12028,7 @@ h5,
     background: #01d28e;
     color: #fff;
 }
+
+.error_desc {
+    color: var(--red);
+}

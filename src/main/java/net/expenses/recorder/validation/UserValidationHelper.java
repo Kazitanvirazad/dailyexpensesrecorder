@@ -48,7 +48,7 @@ public class UserValidationHelper implements CommonConstants {
     }
 
     public static boolean isValidFirstAndLastName(String name) {
-        return StringUtils.hasText(name) && name.length() <= 100 && name.length() > 2;
+        return StringUtils.hasText(name) && name.length() <= 50;
     }
 
     public static void validateUserRegistrationForm(UserRegistrationFormDto userRegistrationForm) {

@@ -5,6 +5,7 @@ import net.expenses.recorder.dto.ResponseDto;
 import net.expenses.recorder.dto.UserDto;
 import net.expenses.recorder.dto.UserLoginFormDto;
 import net.expenses.recorder.dto.UserRegistrationFormDto;
+import net.expenses.recorder.dto.UserUpdateFormDto;
 
 /**
  * @author Kazi Tanvir Azad
@@ -29,4 +30,6 @@ public interface UserService {
     UserDto getUserDetail();
 
     void incrementEntry(User user);
+
+    ResponseDto updateUser(UserUpdateFormDto userUpdateFormDto);
 }

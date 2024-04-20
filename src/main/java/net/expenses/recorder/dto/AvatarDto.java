@@ -10,13 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public final class UserDto {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phone;
-    private String joinedDate;
-    private String bio;
-    private Integer entryCount;
+public final class AvatarDto {
+    private Integer avatarId;
     private String avatarEncodedImage;
 }

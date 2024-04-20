@@ -6,6 +6,7 @@ import net.expenses.recorder.dto.ResponseDto;
 import net.expenses.recorder.dto.UserDto;
 import net.expenses.recorder.dto.UserLoginFormDto;
 import net.expenses.recorder.dto.UserRegistrationFormDto;
+import net.expenses.recorder.dto.UserUpdateFormDto;
 import net.expenses.recorder.service.UserService;
 import net.expenses.recorder.utils.CommonApiConstants;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,5 +52,10 @@ public class UserController implements CommonApiConstants {
         return ResponseEntity.ok(APIResponseDto.builder()
                 .setData(userDto)
                 .build());
+    }
+
+    @PutMapping(path = UPDATE_API, consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ResponseDto> updateUser(@RequestBody UserUpdateFormDto userUpdateFormDto) {
+        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
 }

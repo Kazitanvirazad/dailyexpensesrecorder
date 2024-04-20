@@ -30,7 +30,7 @@ public class SpringSecurityConfig implements CommonApiConstants {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("#{'${reactapp.url}'.split(',')}")
-    private String[] reactApp_urls;
+    private String[] REACTAPP_URLS;
 
     @Bean
     @Order(value = 1)
@@ -63,7 +63,7 @@ public class SpringSecurityConfig implements CommonApiConstants {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping(FILTER_MATCHER_PATTERN).allowedOrigins(reactApp_urls);
+                registry.addMapping(FILTER_MATCHER_PATTERN).allowedOrigins(REACTAPP_URLS);
             }
         };
     }

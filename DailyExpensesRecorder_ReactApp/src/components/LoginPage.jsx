@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import '../css/login.css';
+import '../css/signuplogin.css';
 import '../css/googlefonts.css';
 import bg1 from '../assets/img/bg1.jpg.webp';
 import constants from '../utils/constants.json';
@@ -45,6 +45,11 @@ const LoginPage = () => {
         return true;
     };
 
+    const handleSignupNavigatorHandler = (event) => {
+        event.preventDefault();
+        navigate("/signup", { page: "/home" });
+    };
+
     const handleOnSubmit = (event) => {
         event.preventDefault();
         if (!isValidFormData(loginData.email, loginData.password)) {
@@ -77,7 +82,7 @@ const LoginPage = () => {
             }
         }).catch(err => {
             console.log(err);
-            alert("Server Error!");
+            alert("Something went wrong. Try again later.");
         });
     };
 
@@ -151,7 +156,7 @@ const LoginPage = () => {
                                             </div>
                                         </div>
                                     </form>
-                                    <p className="text-center">New here? <a data-toggle="tab" href="#signup">Sign Up</a></p>
+                                    <p className="text-center">New here? <a data-toggle="tab" href="#" onClick={handleSignupNavigatorHandler}>Sign Up</a></p>
                                 </div>
                             </div>
                         </div>

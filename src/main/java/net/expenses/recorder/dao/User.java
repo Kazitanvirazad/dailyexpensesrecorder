@@ -39,7 +39,7 @@ public class User {
     @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone", columnDefinition = "VARCHAR(20)", unique = true)
+    @Column(name = "phone", columnDefinition = "VARCHAR(20)", nullable = false, unique = true)
     private String phone;
 
     @Column(name = "hashedpassword", columnDefinition = "VARCHAR(150)", nullable = false)

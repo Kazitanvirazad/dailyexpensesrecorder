@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,6 +14,9 @@ import java.util.Optional;
 @Repository
 public interface AvatarRepository extends JpaRepository<Avatar, Integer> {
 
-    @Query(value = "SELECT a FROM EXPENSE_RECORDER.avatar a WHERE a.isdefaultavatar = 16", nativeQuery = true)
-    Optional<Avatar> getDefaultAvatar();
+    @Query(value = "SELECT a.avatarid, a.avatarencoded, a.isdefaultavatar FROM EXPENSE_RECORDER.avatar a WHERE a.isdefaultavatar = true", nativeQuery = true)
+    Optional<List<Avatar>> getDefaultAvatar();
+
+    @Query(value = "SELECT a.avatarid, a.avatarencoded, a.isdefaultavatar FROM EXPENSE_RECORDER.avatar a WHERE a.isdefaultavatar = false", nativeQuery = true)
+    Optional<List<Avatar>> getAvatarList();
 }

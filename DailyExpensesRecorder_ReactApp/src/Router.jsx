@@ -1,5 +1,6 @@
 import Home from "./components/Home";
 import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
 
 import {
     createBrowserRouter,
@@ -16,6 +17,7 @@ const Routers = () => {
                 <Route path="/*" element={<Home />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
             </>
         )
     )
