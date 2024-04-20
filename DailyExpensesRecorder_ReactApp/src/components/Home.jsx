@@ -91,7 +91,7 @@ const Home = () => {
                             </div>
                         </div>
                         <div className=" image d-flex flex-column justify-content-center align-items-center"> <button
-                            className="btn btn-secondary">  {encodedAvatar && <img src={`data:image/jpeg;base64,${encodedAvatar}`} height="100"
+                            className="btn btn-info">  {encodedAvatar && <img src={`data:image/png;base64,${encodedAvatar}`} height="100"
                                 width="100" />}</button> <span className="name mt-3">{user && user.firstName + " " + user.lastName}</span> <span
                                     className="idd">{user && user.email}</span>
                             <div className="d-flex flex-row justify-content-center align-items-center gap-2"> <span

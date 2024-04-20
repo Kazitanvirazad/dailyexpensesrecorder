@@ -17,6 +17,6 @@ public interface AvatarRepository extends JpaRepository<Avatar, Integer> {
     @Query(value = "SELECT a.avatarid, a.avatarencoded, a.isdefaultavatar FROM EXPENSE_RECORDER.avatar a WHERE a.isdefaultavatar = true", nativeQuery = true)
     Optional<List<Avatar>> getDefaultAvatar();
 
-    @Query(value = "SELECT a.avatarid, a.avatarencoded, a.isdefaultavatar FROM EXPENSE_RECORDER.avatar a WHERE a.isdefaultavatar = false", nativeQuery = true)
+    @Query(value = "SELECT a.avatarid, a.avatarencoded, a.isdefaultavatar FROM EXPENSE_RECORDER.avatar a", nativeQuery = true)
     Optional<List<Avatar>> getAvatarList();
 }

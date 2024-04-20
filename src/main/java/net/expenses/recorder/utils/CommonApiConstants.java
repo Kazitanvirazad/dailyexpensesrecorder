@@ -12,6 +12,7 @@ public interface CommonApiConstants extends CommonConstants {
     String CATEGORY_API = BASE_API + BASE + "category";
     String ENTRY_API = BASE_API + BASE + "entry";
     String ITEM_API = BASE_API + BASE + "item";
+    String AVATAR_API = BASE_API + BASE + "avatar";
     String REGISTER_API = BASE + "register";
     String LOGIN_API = BASE + "login";
     String LOGOUT_API = BASE + "logout";
@@ -30,5 +31,6 @@ public interface CommonApiConstants extends CommonConstants {
             CATEGORY_API + FILTER_MATCHER_PATTERN,
             ENTRY_API + FILTER_MATCHER_PATTERN,
             ITEM_API + FILTER_MATCHER_PATTERN,
+            AVATAR_API + FILTER_MATCHER_PATTERN,
     };
 }

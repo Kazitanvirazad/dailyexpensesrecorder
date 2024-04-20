@@ -12,4 +12,6 @@ public interface AvatarService {
     Avatar getDefaultAvatar();
 
     List<AvatarDto> getAvatarList();
+
+    Avatar getAvatarById(Integer avatarId);
 }

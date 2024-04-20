@@ -56,6 +56,6 @@ public class UserController implements CommonApiConstants {
 
     @PutMapping(path = UPDATE_API, consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ResponseDto> updateUser(@RequestBody UserUpdateFormDto userUpdateFormDto) {
-        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(userService.updateUser(userUpdateFormDto), HttpStatus.ACCEPTED);
     }
 }

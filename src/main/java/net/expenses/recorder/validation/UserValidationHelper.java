@@ -2,6 +2,7 @@ package net.expenses.recorder.validation;
 
 import net.expenses.recorder.dto.UserLoginFormDto;
 import net.expenses.recorder.dto.UserRegistrationFormDto;
+import net.expenses.recorder.dto.UserUpdateFormDto;
 import net.expenses.recorder.exception.InvalidInputException;
 import net.expenses.recorder.exception.UserRegistrationException;
 import net.expenses.recorder.utils.CommonConstants;
@@ -51,6 +52,10 @@ public class UserValidationHelper implements CommonConstants {
         return StringUtils.hasText(name) && name.length() <= 50;
     }
 
+    public static boolean isValidAvatarId(Integer avatarId) {
+        return avatarId != null && (avatarId > 0 && avatarId <= 17);
+    }
+
     public static void validateUserRegistrationForm(UserRegistrationFormDto userRegistrationForm) {
         if (userRegistrationForm == null)
             throw new UserRegistrationException("Invalid or empty form!");
@@ -75,5 +80,18 @@ public class UserValidationHelper implements CommonConstants {
             throw new InvalidInputException("Invalid/Malformed Email!");
         if (!isValidPassword(userLoginForm.getPassword()))
             throw new InvalidInputException("Invalid password!");
+    }
+
+    public static void validateUserUpdateForm(UserUpdateFormDto userUpdateForm) {
+        if (userUpdateForm == null)
+            throw new InvalidInputException("Invalid or empty form!");
+        if (userUpdateForm.getFirstName() != null && !isValidFirstAndLastName(userUpdateForm.getFirstName()))
+            throw new InvalidInputException("Invalid First Name!");
+        if (userUpdateForm.getLastName() != null && !isValidFirstAndLastName(userUpdateForm.getLastName()))
+            throw new InvalidInputException("Invalid Last Name!");
+        if (userUpdateForm.getPhone() != null && !isValidPhoneNumber(userUpdateForm.getPhone()))
+            throw new InvalidInputException("Invalid Phone number!");
+        if (userUpdateForm.getAvatarId() != null && !isValidAvatarId(userUpdateForm.getAvatarId()))
+            throw new InvalidInputException("Invalid Avatar selection!");
     }
 }

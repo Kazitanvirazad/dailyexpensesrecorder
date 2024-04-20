@@ -179,7 +179,12 @@ public class UserServiceImpl implements UserService, CommonConstants {
     @Override
     public ResponseDto updateUser(UserUpdateFormDto userUpdateFormDto) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return null;
+        UserValidationHelper.validateUserUpdateForm(userUpdateFormDto);
+        updateUser(user, userUpdateFormDto);
+        userRepository.save(user);
+        return APIResponseDto.builder()
+                .setMessage("User updated successfully!")
+                .build();
     }
 
     private String createPasswordHash(String password) throws NoSuchAlgorithmException {
@@ -191,5 +196,31 @@ public class UserServiceImpl implements UserService, CommonConstants {
             hashedString.append(String.format("%02x", b));
         }
         return hashedString.toString();
+    }
+
+    private void updateUser(User user, UserUpdateFormDto userUpdateFormDto) {
+        if (user != null && userUpdateFormDto != null) {
+            if (userUpdateFormDto.getFirstName() != null) {
+                user.setFirstName(userUpdateFormDto.getFirstName());
+            }
+            if (userUpdateFormDto.getLastName() != null) {
+                user.setLastName(userUpdateFormDto.getLastName());
+            }
+            if (userUpdateFormDto.getBio() != null) {
+                user.setBio(userUpdateFormDto.getBio());
+            }
+            if (userUpdateFormDto.getAvatarId() != null) {
+                if (!user.getAvatar().getAvatarId().equals(userUpdateFormDto.getAvatarId())) {
+                    Avatar avatar = avatarService.getAvatarById(userUpdateFormDto.getAvatarId());
+                    user.setAvatar(avatar);
+                }
+            }
+            if (userUpdateFormDto.getPhone() != null && !user.getPhone().equals(userUpdateFormDto.getPhone())) {
+                if (isUserExistsByPhone(userUpdateFormDto.getPhone())) {
+                    throw new InvalidInputException("Phone number is not available. Try another number.");
+                }
+                user.setPhone(userUpdateFormDto.getPhone());
+            }
+        }
     }
 }

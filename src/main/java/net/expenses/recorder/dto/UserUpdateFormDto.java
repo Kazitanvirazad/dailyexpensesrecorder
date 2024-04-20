@@ -15,5 +15,10 @@ import java.io.Serializable;
 @Getter
 public class UserUpdateFormDto implements RequestDto, Serializable {
     @Serial
-    private static final long serialVersionUID = 5552272657420147131L;
+    private static final long serialVersionUID = 2980059226477989229L;
+    private String firstName;
+    private String lastName;
+    private String bio;
+    private Integer avatarId;
+    private String phone;
 }

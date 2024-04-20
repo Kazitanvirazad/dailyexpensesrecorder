@@ -37,4 +37,9 @@ public class AvatarServiceImpl implements AvatarService {
         }
         return avatarDtoList;
     }
+
+    @Override
+    public Avatar getAvatarById(Integer avatarId) {
+        return avatarRepository.getReferenceById(avatarId);
+    }
 }
