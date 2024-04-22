@@ -9,6 +9,11 @@ const Home = () => {
     const [user, setUser] = useState(null);
     const [encodedAvatar, setEncodedAvatar] = useState(null);
 
+    const handleEditProfileNavigatorHandler = (event) => {
+        event.preventDefault();
+        navigate("/editprofile", { state: { page: "/home" } });
+    };
+
     const handleLogout = (event) => {
         event.preventDefault();
         let hostname = import.meta.env.VITE_API_HOSTNAME;
@@ -17,7 +22,7 @@ const Home = () => {
 
         const token = Cookies.get(constants.BEARER_TOKEN);
         if (!token) {
-            navigate("/login", { page: "/home" });
+            navigate("/login", { state: { page: "/home" } });
         }
 
         fetch(hostname + logoutapi, {
@@ -28,11 +33,11 @@ const Home = () => {
         }).then(response => {
             if (response.status == 401) {
                 alert("Already logged out!");
-                navigate("/login", { page: "/home" });
+                navigate("/login", { state: { page: "/home" } });
             } else if (response.status == 202) {
                 alert("Logged out successfully");
                 Cookies.remove(constants.BEARER_TOKEN);
-                navigate("/login", { page: "/home" })
+                navigate("/login", { state: { page: "/home" } })
             } else {
                 return response.json();
             }
@@ -46,7 +51,7 @@ const Home = () => {
         const token = Cookies.get(constants.BEARER_TOKEN);
 
         if (!token) {
-            navigate("/login", { page: "/home" });
+            navigate("/login", { state: { page: "/home" } });
         }
         let hostname = import.meta.env.VITE_API_HOSTNAME;
         let loginapi = import.meta.env.VITE_API_USERDETAIL;
@@ -60,7 +65,7 @@ const Home = () => {
         }).then(response => {
             if (response.status == 401) {
                 alert("Login to continue");
-                navigate("/login", { page: "/home" });
+                navigate("/login", { state: { page: "/home" } });
             } else {
                 return response.json();
             }
@@ -69,7 +74,7 @@ const Home = () => {
                 setUser(data.data);
                 setEncodedAvatar(data.data.avatarEncodedImage);
             } else {
-                navigate("/login", { page: "/home" });
+                navigate("/login", { state: { page: "/home" } });
             }
         }).catch(err => {
             console.log(err);
@@ -98,7 +103,7 @@ const Home = () => {
                                 className="idd1">{user && user.phone}</span> <span><i className="fa fa-copy"></i></span> </div>
                             <div className="d-flex flex-row justify-content-center align-items-center mt-3"> <span
                                 className="number">{user && user.entryCount} <span className="follow">{user && user.entryCount > 1 ? "Entries" : "Entry"}</span></span> </div>
-                            <div className=" d-flex mt-2"> <button className="btn1 btn-dark">Edit Profile</button> </div>
+                            <div className=" d-flex mt-2"> <button onClick={handleEditProfileNavigatorHandler} className="btn1 btn-dark">Edit Profile</button> </div>
                             <div className="text mt-3"> <span>{user && user.bio}</span> </div>
                             <div className="gap-3 mt-3 icons d-flex flex-row justify-content-center align-items-center"> <span><i
                                 className="fa fa-twitter"></i></span> <span><i className="fa fa-facebook-f"></i></span> <span><i

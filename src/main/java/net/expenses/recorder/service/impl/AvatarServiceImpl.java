@@ -2,9 +2,11 @@ package net.expenses.recorder.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import net.expenses.recorder.dao.Avatar;
+import net.expenses.recorder.dao.User;
 import net.expenses.recorder.dto.AvatarDto;
 import net.expenses.recorder.repository.AvatarRepository;
 import net.expenses.recorder.service.AvatarService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -41,5 +43,12 @@ public class AvatarServiceImpl implements AvatarService {
     @Override
     public Avatar getAvatarById(Integer avatarId) {
         return avatarRepository.getReferenceById(avatarId);
+    }
+
+    @Override
+    public AvatarDto fetchUserAvatar() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Avatar avatar = getAvatarById(user.getAvatar().getAvatarId());
+        return new AvatarDto(avatar.getAvatarId(), avatar.getAvatarEncodedImage());
     }
 }

@@ -47,11 +47,20 @@ const LoginPage = () => {
 
     const handleSignupNavigatorHandler = (event) => {
         event.preventDefault();
-        navigate("/signup", { page: "/home" });
+        navigate("/signup", { state: { page: "/home" } });
+    };
+
+    const trimFormData = (formData) => {
+        Object.keys(formData).forEach(key => {
+            if (formData[key] != null && typeof formData[key] == 'string') {
+                formData[key] = formData[key].trim();
+            }
+        });
     };
 
     const handleOnSubmit = (event) => {
         event.preventDefault();
+        trimFormData(loginData);
         if (!isValidFormData(loginData.email, loginData.password)) {
             return;
         }
@@ -78,7 +87,10 @@ const LoginPage = () => {
                     Cookies.set(constants.BEARER_TOKEN, token);
                 }
                 let lastVisitedPage = location.state ? location.state.page : null;
-                lastVisitedPage ? navigate(lastVisitedPage) : navigate("/home");
+                if (lastVisitedPage != null)
+                    navigate(lastVisitedPage);
+                else
+                    navigate("/home");
             }
         }).catch(err => {
             console.log(err);

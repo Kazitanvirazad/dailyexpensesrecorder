@@ -14,4 +14,6 @@ public interface AvatarService {
     List<AvatarDto> getAvatarList();
 
     Avatar getAvatarById(Integer avatarId);
+
+    AvatarDto fetchUserAvatar();
 }

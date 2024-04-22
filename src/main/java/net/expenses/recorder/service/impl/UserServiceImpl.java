@@ -66,11 +66,11 @@ public class UserServiceImpl implements UserService, CommonConstants {
         UserValidationHelper.validateUserLoginForm(userLoginFormDto);
 
         try {
-            String hashedPassword = createPasswordHash(userLoginFormDto.getPassword());
-            User user = getUserByEmail(userLoginFormDto.getEmail());
+            User user = getUserByEmail(userLoginFormDto.getEmail().trim());
             if (user == null) {
                 throw new InvalidInputException("User does not exists.");
             }
+            String hashedPassword = createPasswordHash(userLoginFormDto.getPassword().trim());
             if (!user.getHashedPassword().equals(hashedPassword)) {
                 throw new BadCredentialException("Password mismatch");
             }
@@ -108,26 +108,26 @@ public class UserServiceImpl implements UserService, CommonConstants {
         // Validates Registration form
         UserValidationHelper.validateUserRegistrationForm(userRegistrationFormDto);
 
-        if (isUserExistsByEmailOrPhone(userRegistrationFormDto.getEmail(), userRegistrationFormDto.getPhone())) {
+        if (isUserExistsByEmailOrPhone(userRegistrationFormDto.getEmail().trim(), userRegistrationFormDto.getPhone().trim())) {
             throw new UserRegistrationException("User Registration Failed. User already exists with same email or phone.");
         }
         User user = new User();
-        user.setEmail(userRegistrationFormDto.getEmail());
-        user.setFirstName(userRegistrationFormDto.getFirstName());
-        user.setLastName(userRegistrationFormDto.getLastName());
+        user.setEmail(userRegistrationFormDto.getEmail().trim());
+        user.setFirstName(userRegistrationFormDto.getFirstName().trim());
+        user.setLastName(userRegistrationFormDto.getLastName().trim());
         String hashedPassword;
         try {
-            hashedPassword = createPasswordHash(userRegistrationFormDto.getPassword());
+            hashedPassword = createPasswordHash(userRegistrationFormDto.getPassword().trim());
         } catch (NoSuchAlgorithmException exception) {
             log.error(exception.getMessage());
             throw new ServerErrorException("Something went wrong.");
         }
         user.setHashedPassword(hashedPassword);
-        user.setPhone(userRegistrationFormDto.getPhone());
+        user.setPhone(userRegistrationFormDto.getPhone().trim());
         user.setDateCreated(Timestamp.from(Instant.now()));
         user.setEntryCount(0);
         user.setLoggedOut(false);
-        if (StringUtils.hasText(userRegistrationFormDto.getBio())) {
+        if (StringUtils.hasText(userRegistrationFormDto.getBio().trim())) {
             user.setBio(userRegistrationFormDto.getBio());
         } else {
             user.setBio(DEFAULT_BIO);
@@ -201,13 +201,13 @@ public class UserServiceImpl implements UserService, CommonConstants {
     private void updateUser(User user, UserUpdateFormDto userUpdateFormDto) {
         if (user != null && userUpdateFormDto != null) {
             if (userUpdateFormDto.getFirstName() != null) {
-                user.setFirstName(userUpdateFormDto.getFirstName());
+                user.setFirstName(userUpdateFormDto.getFirstName().trim());
             }
             if (userUpdateFormDto.getLastName() != null) {
-                user.setLastName(userUpdateFormDto.getLastName());
+                user.setLastName(userUpdateFormDto.getLastName().trim());
             }
             if (userUpdateFormDto.getBio() != null) {
-                user.setBio(userUpdateFormDto.getBio());
+                user.setBio(userUpdateFormDto.getBio().trim());
             }
             if (userUpdateFormDto.getAvatarId() != null) {
                 if (!user.getAvatar().getAvatarId().equals(userUpdateFormDto.getAvatarId())) {
@@ -215,8 +215,8 @@ public class UserServiceImpl implements UserService, CommonConstants {
                     user.setAvatar(avatar);
                 }
             }
-            if (userUpdateFormDto.getPhone() != null && !user.getPhone().equals(userUpdateFormDto.getPhone())) {
-                if (isUserExistsByPhone(userUpdateFormDto.getPhone())) {
+            if (userUpdateFormDto.getPhone() != null && !user.getPhone().equals(userUpdateFormDto.getPhone().trim())) {
+                if (isUserExistsByPhone(userUpdateFormDto.getPhone().trim())) {
                     throw new InvalidInputException("Phone number is not available. Try another number.");
                 }
                 user.setPhone(userUpdateFormDto.getPhone());

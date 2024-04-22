@@ -63,7 +63,8 @@ public class SpringSecurityConfig implements CommonApiConstants {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping(FILTER_MATCHER_PATTERN).allowedOrigins(REACTAPP_URLS);
+                registry.addMapping(FILTER_MATCHER_PATTERN).allowedOrigins(REACTAPP_URLS)
+                        .allowedMethods(ALLOWED_HTTP_METHODS);
             }
         };
     }

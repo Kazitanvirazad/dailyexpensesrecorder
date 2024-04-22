@@ -33,4 +33,5 @@ public interface CommonApiConstants extends CommonConstants {
             ITEM_API + FILTER_MATCHER_PATTERN,
             AVATAR_API + FILTER_MATCHER_PATTERN,
     };
+    String[] ALLOWED_HTTP_METHODS = {"HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"};
 }

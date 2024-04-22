@@ -26,4 +26,11 @@ public class AvatarController implements CommonApiConstants {
                 .setData(avatarService.getAvatarList())
                 .build());
     }
+
+    @GetMapping(path = FETCH_API, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ResponseDto> fetchAvatar() {
+        return ResponseEntity.ok(APIResponseDto.builder()
+                .setData(avatarService.fetchUserAvatar())
+                .build());
+    }
 }

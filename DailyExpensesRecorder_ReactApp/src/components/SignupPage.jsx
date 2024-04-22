@@ -46,11 +46,11 @@ const SignupPage = () => {
     };
 
     const isValidFormData = (email, password, firstname, lastname, phone) => {
-        if (!firstname || !firstname.length > 0) {
+        if (!firstname || !firstname.match(/\S/)) {
             setFirstnameValidationError("Firstname should not be empty.")
             return false;
         }
-        if (!lastname || !lastname.length > 0) {
+        if (!lastname || !lastname.match(/\S/)) {
             setLastNameValidationError("Lastname should not be empty.")
             return false;
         }
@@ -73,8 +73,17 @@ const SignupPage = () => {
         return true;
     };
 
+    const trimFormData = (formData) => {
+        Object.keys(formData).forEach(key => {
+            if (formData[key] != null && typeof formData[key] == 'string') {
+                formData[key] = formData[key].trim();
+            }
+        });
+    };
+
     const handleOnSubmit = (event) => {
         event.preventDefault();
+        trimFormData(signupData);
         if (!isValidFormData(signupData.email, signupData.password, signupData.firstName, signupData.lastName, signupData.phone)) {
             return;
         }
@@ -141,7 +150,7 @@ const SignupPage = () => {
 
     const handleSigninNavigatorHandler = (event) => {
         event.preventDefault();
-        navigate("/login", { page: "/home" });
+        navigate("/login", { state: { page: "/home" } });
     };
 
     return (
