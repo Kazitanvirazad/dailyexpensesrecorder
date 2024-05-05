@@ -26,9 +26,9 @@ import java.util.UUID;
 @Table(name = "item", schema = "EXPENSE_RECORDER")
 public class Item {
     @Id
-    @Column(name = "itemno", columnDefinition = "UUID")
+    @Column(name = "itemid", columnDefinition = "UUID")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID itemNo;
+    private UUID itemId;
 
     @Column(name = "itemname", columnDefinition = "VARCHAR(50)")
     private String itemName;
@@ -43,7 +43,7 @@ public class Item {
     private Double totalAmount;
 
     @ManyToOne
-    @JoinColumn(name = "entryno", columnDefinition = "UUID")
+    @JoinColumn(name = "entryid", columnDefinition = "UUID")
     private Entry entry;
 
     @Column(name = "description", columnDefinition = "VARCHAR(100)")

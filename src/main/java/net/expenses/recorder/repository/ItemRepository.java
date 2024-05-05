@@ -16,8 +16,8 @@ import java.util.UUID;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, UUID> {
 
-    @Query(value = "SELECT i FROM EXPENSE_RECORDER.item i WHERE i.entryno = :entryNo AND i.userid = :userId", nativeQuery = true)
-    Optional<List<Item>> getItemsByEntry(@Param(value = "entryNo") String entryNo, @Param(value = "userId") Long userId);
+    @Query(value = "SELECT i FROM EXPENSE_RECORDER.item i WHERE i.entryid = :entryId AND i.userid = :userId", nativeQuery = true)
+    Optional<List<Item>> getItemsByEntry(@Param(value = "entryId") String entryId, @Param(value = "userId") Long userId);
 
     @Query(value = "SELECT i FROM EXPENSE_RECORDER.item i WHERE i.userid = :userId", nativeQuery = true)
     Optional<List<Item>> getAllItems(@Param(value = "userId") Long userId);

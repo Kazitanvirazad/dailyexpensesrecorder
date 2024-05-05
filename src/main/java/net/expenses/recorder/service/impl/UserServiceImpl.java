@@ -33,7 +33,6 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -76,7 +75,7 @@ public class UserServiceImpl implements UserService, CommonConstants {
             }
             if (user.getLoggedOut()) {
                 user.setLoggedOut(false);
-                userRepository.save(user);
+                userRepository.setLoggedOutFalse(user.getUserId());
             }
             String token = jwtManager.generateToken(user);
             return new JwtTokenDto(JWT_BEARER, TOKEN_EXPIRY_SECONDS, token);
@@ -124,7 +123,10 @@ public class UserServiceImpl implements UserService, CommonConstants {
         }
         user.setHashedPassword(hashedPassword);
         user.setPhone(userRegistrationFormDto.getPhone().trim());
-        user.setDateCreated(Timestamp.from(Instant.now()));
+
+        Timestamp currentTimeStamp = getCurrentTimeStamp();
+
+        user.setDateCreated(currentTimeStamp);
         user.setEntryCount(0);
         user.setLoggedOut(false);
         if (StringUtils.hasText(userRegistrationFormDto.getBio().trim())) {
@@ -148,8 +150,7 @@ public class UserServiceImpl implements UserService, CommonConstants {
         if (user.getLoggedOut()) {
             throw new UserLogoutException("User is already logged out!");
         }
-        user.setLoggedOut(true);
-        userRepository.save(user);
+        userRepository.setLoggedOutTrue(user.getUserId());
         return APIResponseDto.builder()
                 .setMessage("User is logged out!")
                 .build();

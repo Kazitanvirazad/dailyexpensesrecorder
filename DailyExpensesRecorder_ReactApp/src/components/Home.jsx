@@ -14,6 +14,11 @@ const Home = () => {
         navigate("/editprofile", { state: { page: "/home" } });
     };
 
+    const handleListEntryNavigatorHandler = (event) => {
+        event.preventDefault();
+        navigate("/addentry");
+    };
+
     const handleLogout = (event) => {
         event.preventDefault();
         let hostname = import.meta.env.VITE_API_HOSTNAME;
@@ -101,7 +106,7 @@ const Home = () => {
                                     className="idd">{user && user.email}</span>
                             <div className="d-flex flex-row justify-content-center align-items-center gap-2"> <span
                                 className="idd1">{user && user.phone}</span> <span><i className="fa fa-copy"></i></span> </div>
-                            <div className="d-flex flex-row justify-content-center align-items-center mt-3"> <span
+                            <div className="d-flex flex-row justify-content-center align-items-center mt-3" onClick={handleListEntryNavigatorHandler}> <span
                                 className="number">{user && user.entryCount} <span className="follow">{user && user.entryCount > 1 ? "Entries" : "Entry"}</span></span> </div>
                             <div className=" d-flex mt-2"> <button onClick={handleEditProfileNavigatorHandler} className="btn1 btn-dark">Edit Profile</button> </div>
                             <div className="text mt-3"> <span>{user && user.bio}</span> </div>

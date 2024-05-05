@@ -9,6 +9,13 @@ CREATE TYPE EXPENSE_RECORDER.monthname as enum
 ('JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER','NOT_SPECIFIED');
 CREATE CAST (varchar(15) AS EXPENSE_RECORDER.monthname) WITH INOUT AS IMPLICIT;
 
+CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.avatar(
+    avatarid SERIAL,
+    avatarencoded TEXT,
+    isdefaultavatar BOOL,
+    CONSTRAINT PK_avatar PRIMARY KEY (avatarid)
+);
+
 CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.user (
     userid BIGSERIAL,
     firstname VARCHAR(50) NOT NULL,
@@ -35,37 +42,30 @@ CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.category (
 );
 
 CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.entry (
-    entryno UUID DEFAULT uuid_generate_v4(),
+    entryid UUID DEFAULT uuid_generate_v4(),
     userid BIGSERIAL,
-    entrytime TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC') NOT NULL,
+    creationtime TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC') NOT NULL,
     monthname EXPENSE_RECORDER.monthname DEFAULT 'NOT_SPECIFIED' NOT NULL,
-    month DATE NOT NULL,
+    entrymonth DATE NOT NULL,
     amount FLOAT8 DEFAULT 0.00 NOT NULL,
     description VARCHAR(100),
     lastmodified TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC') NOT NULL,
-    CONSTRAINT PK_entry PRIMARY KEY (entryno),
+    CONSTRAINT PK_entry PRIMARY KEY (entryid),
     CONSTRAINT FK_user_entry FOREIGN KEY (userid) REFERENCES EXPENSE_RECORDER.user(userid)
 );
 
 CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.item (
-    itemno UUID DEFAULT uuid_generate_v4(),
+    itemid UUID DEFAULT uuid_generate_v4(),
     itemname VARCHAR(50) NOT NULL,
     price FLOAT8 DEFAULT 0.00 NOT NULL,
     count INTEGER DEFAULT 1 NOT NULL,
     totalamount FLOAT8 DEFAULT 0.00 NOT NULL,
-    entryno UUID,
+    entryid UUID,
     description VARCHAR(100),
     userid BIGSERIAL,
     categoryid UUID,
-    CONSTRAINT PK_item PRIMARY KEY (itemno),
-    CONSTRAINT FK_entry_item FOREIGN KEY (entryno) REFERENCES EXPENSE_RECORDER.entry(entryno),
+    CONSTRAINT PK_item PRIMARY KEY (itemid),
+    CONSTRAINT FK_entry_item FOREIGN KEY (entryid) REFERENCES EXPENSE_RECORDER.entry(entryid),
     CONSTRAINT FK_user_item FOREIGN KEY (userid) REFERENCES EXPENSE_RECORDER.user(userid),
     CONSTRAINT FK_category_item FOREIGN KEY (categoryid) REFERENCES EXPENSE_RECORDER.category(categoryid)
-);
-
-CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.avatar(
-    avatarid SERIAL,
-    avatarencoded TEXT,
-    isdefaultavatar BOOL,
-    CONSTRAINT PK_avatar PRIMARY KEY (avatarid)
 );

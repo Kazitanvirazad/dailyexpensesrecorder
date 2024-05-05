@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.expenses.recorder.dao.enums.Month;
+import net.expenses.recorder.dao.enums.MonthName;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -31,23 +31,23 @@ import java.util.UUID;
 @Table(name = "entry", schema = "EXPENSE_RECORDER")
 public class Entry {
     @Id
-    @Column(name = "entryno", columnDefinition = "UUID")
+    @Column(name = "entryid", columnDefinition = "UUID")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID entryNo;
+    private UUID entryId;
 
     @ManyToOne
     @JoinColumn(name = "userid", columnDefinition = "BIGSERIAL")
     private User user;
 
-    @Column(name = "entrytime", columnDefinition = "TIMESTAMP")
-    private Timestamp entryTime;
+    @Column(name = "creationtime", columnDefinition = "TIMESTAMP")
+    private Timestamp creationTime;
 
     @Column(name = "monthname", columnDefinition = "EXPENSE_RECORDER.monthname")
     @Enumerated(value = EnumType.STRING)
-    private Month monthName;
+    private MonthName monthName;
 
-    @Column(name = "month", columnDefinition = "DATE", nullable = false)
-    private Date month;
+    @Column(name = "entrymonth", columnDefinition = "DATE", nullable = false)
+    private Date entryMonth;
 
     @Column(name = "amount", columnDefinition = "FLOAT8")
     private Double amount;

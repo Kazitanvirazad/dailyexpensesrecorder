@@ -6,6 +6,7 @@ import '../css/googlefonts.css';
 import bg1 from '../assets/img/bg1.jpg.webp';
 import constants from '../utils/constants.json';
 import Cookies from 'js-cookie';
+import { trimFormData } from '../utils/utilityHelper';
 
 let signupData = {};
 
@@ -71,14 +72,6 @@ const SignupPage = () => {
             return false;
         }
         return true;
-    };
-
-    const trimFormData = (formData) => {
-        Object.keys(formData).forEach(key => {
-            if (formData[key] != null && typeof formData[key] == 'string') {
-                formData[key] = formData[key].trim();
-            }
-        });
     };
 
     const handleOnSubmit = (event) => {

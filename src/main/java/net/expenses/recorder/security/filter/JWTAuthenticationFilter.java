@@ -39,9 +39,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
      * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the
      * default ServletRequest and ServletResponse ones.
      *
-     * @param request
-     * @param response
-     * @param filterChain
+     * @param request     {@link HttpServletRequest}
+     * @param response    {@link HttpServletResponse}
+     * @param filterChain {@link FilterChain}
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

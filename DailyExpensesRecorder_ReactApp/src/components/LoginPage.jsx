@@ -5,6 +5,7 @@ import '../css/googlefonts.css';
 import bg1 from '../assets/img/bg1.jpg.webp';
 import constants from '../utils/constants.json';
 import Cookies from 'js-cookie';
+import { trimFormData } from '../utils/utilityHelper';
 
 let loginData = {};
 
@@ -48,14 +49,6 @@ const LoginPage = () => {
     const handleSignupNavigatorHandler = (event) => {
         event.preventDefault();
         navigate("/signup", { state: { page: "/home" } });
-    };
-
-    const trimFormData = (formData) => {
-        Object.keys(formData).forEach(key => {
-            if (formData[key] != null && typeof formData[key] == 'string') {
-                formData[key] = formData[key].trim();
-            }
-        });
     };
 
     const handleOnSubmit = (event) => {

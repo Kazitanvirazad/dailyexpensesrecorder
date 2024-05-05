@@ -19,7 +19,7 @@ public interface CommonApiConstants extends CommonConstants {
     String FETCH_ALL_API = BASE + "fetchall";
     String FETCH_API = BASE + "fetch";
     String DELETE_API = BASE + "delete";
-    String NEW_API = BASE + "new";
+    String CREATE_API = BASE + "create";
     String SORT_API = BASE + "sort";
     String DETAIL_API = BASE + "detail";
     String UPDATE_API = BASE + "update";

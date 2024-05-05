@@ -8,9 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 public class DailyExpensesRecorderApplication {
-
     public static void main(String[] args) {
+        // JVM argument takes precedence over the environment variable TZ
+        // Setting the JVM argument -Duser.timezone="UTC" to change the time zone in the
+        // JVM to UTC for non-prod instance
         SpringApplication.run(DailyExpensesRecorderApplication.class, args);
     }
-
 }

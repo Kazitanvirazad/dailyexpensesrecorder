@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum Month {
+public enum MonthName {
     JANUARY("JANUARY"),
     FEBRUARY("FEBRUARY"),
     MARCH("MARCH"),
