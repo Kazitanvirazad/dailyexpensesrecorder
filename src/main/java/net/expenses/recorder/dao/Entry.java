@@ -57,4 +57,7 @@ public class Entry {
 
     @Column(name = "lastmodified", columnDefinition = "TIMESTAMP")
     private Timestamp lastModified;
+
+    @Column(name = "itemcount", columnDefinition = "INTEGER")
+    private Integer itemCount;
 }

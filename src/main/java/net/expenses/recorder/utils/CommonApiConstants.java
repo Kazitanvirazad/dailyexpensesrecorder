@@ -23,6 +23,7 @@ public interface CommonApiConstants extends CommonConstants {
     String SORT_API = BASE + "sort";
     String DETAIL_API = BASE + "detail";
     String UPDATE_API = BASE + "update";
+    String GROUP_BY_API = BASE + "group-by";
     String FILTER_MATCHER_PATTERN = BASE + "**";
     String[] SPRING_SECURITY_JWT_ENDPOINTS = {
             USER_API + LOGOUT_API + FILTER_MATCHER_PATTERN,

@@ -1,18 +1,20 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import Select from "react-select";
 import '../css/signuplogin.css';
 import '../css/googlefonts.css';
-import bg1 from '../assets/img/bg1.jpg.webp';
 import rawData from "../utils/rawData.json";
 import Cookies from 'js-cookie';
 import constants from '../utils/constants.json';
 import { trimFormData } from '../utils/utilityHelper';
+import backicon2 from "../assets/backicon2.svg";
 
 let addEntryData = {};
 
 const AddEntry = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
     const [yearValidationError, setYearValidationError] = useState(null);
     const [monthValidationError, setMonthValidationError] = useState(null);
 
@@ -62,7 +64,6 @@ const AddEntry = () => {
     const handleOnSubmit = (event) => {
         event.preventDefault();
         trimFormData(addEntryData);
-        console.log(addEntryData);
         if (!isValidFormData(addEntryData.year, addEntryData.month)) {
             return;
         }
@@ -95,12 +96,22 @@ const AddEntry = () => {
         }).then(data => {
             if (data) {
                 alert(data.message);
-                navigate("/home");
+                navigate("/allentries", { state: { year: addEntryData["year"] } });
             }
         }).catch(err => {
             console.log(err);
             alert("Server Error!");
         });
+    };
+
+    const handleBackButtonNavigatorHandler = (event) => {
+        event.preventDefault();
+        let lastVisitedPage = location.state ? location.state.page : null;
+        let year = location.state ? location.state.year : null;
+        if (lastVisitedPage && year)
+            navigate(lastVisitedPage, { state: { year: year } });
+        else
+            navigate("/entrylistbyyear");
     };
 
     const handleHomeNavigatorHandler = (event) => {
@@ -121,11 +132,16 @@ const AddEntry = () => {
                     <div className="row justify-content-center">
                         <div className="col-md-7 col-lg-5">
                             <div className="wrap">
-                                <div className="img" style={{ backgroundImage: `url(${bg1})` }}></div>
                                 <div className="login-wrap p-4 p-md-5">
                                     <div className="d-flex">
-                                        <div className="w-100">
+                                        <div className="w-100" style={{ textAlign: "center" }}>
                                             <h3 className="mb-4">Add Entry</h3>
+                                            <a href="#" onClick={handleBackButtonNavigatorHandler}
+                                                className="text-right position-absolute top-0 start-0" style={{
+                                                    marginTop: "35px",
+                                                    marginLeft: "25px"
+                                                }}><img style={{ height: "30px" }}
+                                                    src={backicon2} alt="Back Button" /></a>
                                         </div>
                                     </div>
                                     <form className="signin-form" style={{ marginBottom: "80px" }}>

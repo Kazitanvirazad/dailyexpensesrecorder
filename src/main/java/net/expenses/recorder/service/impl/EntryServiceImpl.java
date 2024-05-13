@@ -1,37 +1,38 @@
 package net.expenses.recorder.service.impl;
 
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.expenses.recorder.dao.Entry;
+import net.expenses.recorder.dao.EntryYear;
 import net.expenses.recorder.dao.Item;
 import net.expenses.recorder.dao.User;
 import net.expenses.recorder.dao.enums.MonthName;
 import net.expenses.recorder.dto.EntryDto;
 import net.expenses.recorder.dto.EntryFormDto;
+import net.expenses.recorder.dto.EntryModifyFormDto;
 import net.expenses.recorder.exception.EntryException;
 import net.expenses.recorder.exception.InvalidInputException;
 import net.expenses.recorder.repository.EntryRepository;
 import net.expenses.recorder.service.EntryService;
+import net.expenses.recorder.service.EntryYearService;
 import net.expenses.recorder.service.ItemService;
 import net.expenses.recorder.service.UserService;
 import net.expenses.recorder.utils.CommonConstants;
 import net.expenses.recorder.validation.EntryValidation;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.UUID;
 
 /**
  * @author Kazi Tanvir Azad
@@ -43,6 +44,7 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
     private final EntryRepository entryRepository;
     private final ItemService itemService;
     private final UserService userService;
+    private final EntryYearService entryYearService;
 
     @Transactional
     @Override
@@ -54,12 +56,6 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
         }
 
         MonthName monthName = getMonthByName(entryForm.getMonth().trim());
-
-        Optional<List<Entry>> optionalEntries = entryRepository.findAllByMonth(Date.valueOf(getDateString(monthName, entryForm.getYear())),
-                user.getUserId());
-        List<Entry> entries = optionalEntries.orElseGet(ArrayList::new);
-        if (!CollectionUtils.isEmpty(entries))
-            throw new EntryException("Entry already exists for the selected month!");
 
         Entry entry = new Entry();
 
@@ -75,32 +71,62 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
         String desc = entryForm.getDescription();
         entry.setDescription(desc != null ? desc.trim() : null);
         entry.setAmount(0.00d);
+        entry.setItemCount(0);
         userService.incrementEntry(user);
-        entryRepository.save(entry);
+        entry = entryRepository.save(entry);
+        entryYearService.createEntryYear(entry);
     }
 
     @Transactional
     @Override
-    public void modifyEntry(Entry entry) {
-        if (entry != null)
-            entryRepository.save(entry);
-    }
+    public void modifyEntry(EntryModifyFormDto entryModifyFormDto) {
+        EntryValidation.validateEntryModifyForm(entryModifyFormDto);
 
-    @Transactional
-    @Override
-    public void modifyEntry(Consumer<Entry> entryConsumer, Entry entry) {
-        if (entry != null) {
-            entryConsumer.accept(entry);
-            entryRepository.save(entry);
+        MonthName monthName = getMonthByName(entryModifyFormDto.getMonth().trim());
+
+        try {
+            Entry entry = entryRepository.
+                    getReferenceById(UUID.fromString(entryModifyFormDto.getEntry_id()));
+
+            EntryYear entryYear = entryYearService.getEntryYearByEntry(entry);
+            entryYearService.decrementEntryFromEntryYear(entryYear, entry.getItemCount());
+
+            entry.setMonthName(monthName);
+            if (StringUtils.hasText(entryModifyFormDto.getDescription()))
+                entry.setDescription(entryModifyFormDto.getDescription());
+
+            Timestamp currentTimeStamp = getCurrentTimeStamp();
+            entry.setLastModified(currentTimeStamp);
+
+            entry.setEntryMonth(getEntryDate(monthName, entryModifyFormDto.getYear()));
+            entry = entryRepository.save(entry);
+            entryYearService.createEntryYear(entry);
+        } catch (PersistenceException exception) {
+            throw new EntryException("Invalid Entry selection!");
         }
     }
 
     @Override
-    public List<EntryDto> getAllEntries(User user) {
+    public List<EntryDto> getAllEntriesByEntryYear(User user, String year) {
+        EntryValidation.validateEntryYear(year);
         if (user == null) {
             user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         }
-        Optional<List<Entry>> optionalEntries = entryRepository.findAllByUser(user.getUserId());
+        String start = year + "-01-01";
+        String end = year + "-12-31";
+        Optional<List<Entry>> optionalEntries = entryRepository.findAllByUserEntryYear(user.getUserId(),
+                Date.valueOf(start), Date.valueOf(end));
+        return getAllEntries(optionalEntries.orElseGet(ArrayList::new));
+    }
+
+    @Override
+    public List<EntryDto> getAllEntriesByEntryMonth(User user, String year, String month) {
+        EntryValidation.validateEntryYear(year);
+        int monthIndex = getMonthIndex(getMonthByName(month));
+        String start = year + "-" + monthIndex + "-1";
+        String end = year + "-" + monthIndex + "-" + getMonthLastDate(Integer.parseInt(year), monthIndex);
+        Optional<List<Entry>> optionalEntries = entryRepository.findAllByByUserEntryMonth(user.getUserId(),
+                Date.valueOf(start), Date.valueOf(end));
         return getAllEntries(optionalEntries.orElseGet(ArrayList::new));
     }
 
@@ -114,6 +140,33 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
         BigDecimal bigDecimal = new BigDecimal(sum).setScale(2, RoundingMode.HALF_UP);
         entry.setAmount(bigDecimal.doubleValue());
         entryRepository.save(entry);
+    }
+
+    @Transactional
+    @Override
+    public void incrementItemCount(User user, Entry entry) {
+        if (user == null) {
+            user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+        if (entry != null && entry.getUser().equals(user)) {
+            int incrementItemCount = entry.getItemCount() + 1;
+            entryRepository.modifyItemCount(incrementItemCount, user.getUserId(), entry.getEntryId());
+        }
+    }
+
+    @Transactional
+    @Override
+    public void decrementItemCount(User user, Entry entry) {
+        if (user == null) {
+            user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+        if (entry != null && entry.getUser().equals(user)) {
+            int itemCount = entry.getItemCount();
+            if (itemCount > 0) {
+                int decrementItemCount = itemCount - 1;
+                entryRepository.modifyItemCount(decrementItemCount, user.getUserId(), entry.getEntryId());
+            }
+        }
     }
 
     private List<EntryDto> getAllEntries(List<Entry> entries) {
@@ -130,12 +183,10 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
             entryDto.setLastModified(entry.getLastModified());
             entryDto.setTotalAmount(entry.getAmount());
             entryDto.setDesc(entry.getDescription());
+            entryDto.setItemCount(entry.getItemCount());
 
-            DateFormat monthFormat = new SimpleDateFormat("MMMM");
-            DateFormat yearFormat = new SimpleDateFormat("yyyy");
-
-            entryDto.setMonth(monthFormat.format(entry.getEntryMonth()));
-            entryDto.setYear(yearFormat.format(entry.getEntryMonth()));
+            entryDto.setMonth(getFormattedDate(entry.getEntryMonth(), MONTH_FORMAT));
+            entryDto.setYear(getFormattedDate(entry.getEntryMonth(), YEAR_FORMAT));
         }
         return entryDto;
     }
@@ -182,7 +233,7 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
     }
 
     private Date getEntryDate(MonthName monthName, int year) {
-        if (year >= 1950 && year <= 2099) {
+        if (year >= ENTRY_MIN_YEAR && year <= ENTRY_MAX_YEAR) {
             int monthIndex = getMonthIndex(monthName);
             if (monthIndex <= 0) {
                 throw new InvalidInputException("Invalid month name input. Month name should be at" +
@@ -190,10 +241,37 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
             }
             return Date.valueOf(getDateString(monthName, year));
         }
-        throw new InvalidInputException("Year selection must be from 1950 to 2099");
+        throw new InvalidInputException("Year selection must be from " + ENTRY_MIN_YEAR + " to " + ENTRY_MAX_YEAR);
     }
 
     private String getDateString(MonthName monthName, int year) {
         return year + "-" + getMonthIndex(monthName) + "-1";
+    }
+
+    private int getMonthLastDate(int year, int month) {
+        if (month > 12) {
+            throw new InvalidInputException("Invalid month name input. Month name should be at" +
+                    " least first three letters of the actual month.");
+        }
+        if (month == 2) {
+            if (year % 100 == 0) {
+                if (year % 400 == 0) {
+                    return 29;
+                } else {
+                    return 28;
+                }
+            } else if (year % 4 == 0) {
+                return 29;
+            } else {
+                return 28;
+            }
+        }
+        if (month < 8 && (month % 2 != 0)) {
+            return 31;
+        } else if (month > 7 && (month % 2 == 0)) {
+            return 31;
+        } else {
+            return 30;
+        }
     }
 }

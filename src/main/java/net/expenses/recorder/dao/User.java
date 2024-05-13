@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 /**
  * @author Kazi Tanvir Azad
@@ -60,4 +61,16 @@ public class User {
 
     @Column(name = "entrycount", columnDefinition = "INTEGER")
     private Integer entryCount;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, email);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj || ((obj instanceof User)
+                && this.getUserId().equals(((User) obj).getUserId())
+                && this.getEmail().equals(((User) obj).getEmail()));
+    }
 }

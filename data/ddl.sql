@@ -50,8 +50,30 @@ CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.entry (
     amount FLOAT8 DEFAULT 0.00 NOT NULL,
     description VARCHAR(100),
     lastmodified TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'UTC') NOT NULL,
+    itemcount INTEGER DEFAULT 0 NOT NULL,
     CONSTRAINT PK_entry PRIMARY KEY (entryid),
     CONSTRAINT FK_user_entry FOREIGN KEY (userid) REFERENCES EXPENSE_RECORDER.user(userid)
+);
+
+CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.entry_year (
+    entryyearid UUID DEFAULT uuid_generate_v4(),
+    userid BIGSERIAL,
+    year VARCHAR(4) NOT NULL,
+    year_itemcount INTEGER DEFAULT 0 NOT NULL,
+    year_entrycount INTEGER DEFAULT 0 NOT NULL,
+    CONSTRAINT PK_entry_year PRIMARY KEY (entryyearid),
+    CONSTRAINT FK_user_item FOREIGN KEY (userid) REFERENCES EXPENSE_RECORDER.user(userid)
+);
+
+CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.entry_month (
+    entrymonthid UUID DEFAULT uuid_generate_v4(),
+    userid BIGSERIAL,
+    month VARCHAR(10) NOT NULL,
+    year VARCHAR(4) NOT NULL,
+    month_itemcount INTEGER DEFAULT 0 NOT NULL,
+    month_entrycount INTEGER DEFAULT 0 NOT NULL,
+    CONSTRAINT PK_entry_month PRIMARY KEY (entrymonthid),
+    CONSTRAINT FK_user_item FOREIGN KEY (userid) REFERENCES EXPENSE_RECORDER.user(userid)
 );
 
 CREATE TABLE IF NOT EXISTS EXPENSE_RECORDER.item (

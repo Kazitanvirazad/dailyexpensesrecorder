@@ -11,12 +11,12 @@ const Home = () => {
 
     const handleEditProfileNavigatorHandler = (event) => {
         event.preventDefault();
-        navigate("/editprofile", { state: { page: "/home" } });
+        navigate("/editprofile");
     };
 
-    const handleListEntryNavigatorHandler = (event) => {
+    const handleListEntryByYearNavigatorHandler = (event) => {
         event.preventDefault();
-        navigate("/addentry");
+        navigate("/entrylistbyyear");
     };
 
     const handleLogout = (event) => {
@@ -106,7 +106,7 @@ const Home = () => {
                                     className="idd">{user && user.email}</span>
                             <div className="d-flex flex-row justify-content-center align-items-center gap-2"> <span
                                 className="idd1">{user && user.phone}</span> <span><i className="fa fa-copy"></i></span> </div>
-                            <div className="d-flex flex-row justify-content-center align-items-center mt-3" onClick={handleListEntryNavigatorHandler}> <span
+                            <div className="d-flex flex-row justify-content-center align-items-center mt-3" onClick={handleListEntryByYearNavigatorHandler}> <span
                                 className="number">{user && user.entryCount} <span className="follow">{user && user.entryCount > 1 ? "Entries" : "Entry"}</span></span> </div>
                             <div className=" d-flex mt-2"> <button onClick={handleEditProfileNavigatorHandler} className="btn1 btn-dark">Edit Profile</button> </div>
                             <div className="text mt-3"> <span>{user && user.bio}</span> </div>

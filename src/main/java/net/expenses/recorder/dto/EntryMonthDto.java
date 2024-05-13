@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 /**
  * @author Kazi Tanvir Azad
  */
@@ -14,13 +12,9 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
-public class EntryDto {
-    private String entryId;
-    private Date creationTime;
-    private String month;
+public class EntryMonthDto {
     private String year;
-    private Double totalAmount;
-    private String desc;
-    private Date lastModified;
+    private String month;
     private Integer itemCount;
+    private Integer entryCount;
 }

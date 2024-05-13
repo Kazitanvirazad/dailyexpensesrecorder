@@ -3,6 +3,8 @@ import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import EditProfile from "./components/EditProfile";
 import AddEntry from "./components/AddEntry";
+import EntryList from "./components/EntryList";
+import EntryListByYear from "./components/EntryListByYear";
 
 import {
     createBrowserRouter,
@@ -22,6 +24,8 @@ const Routers = () => {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/editprofile" element={<EditProfile />} />
                 <Route path="/addentry" element={<AddEntry />} />
+                <Route path="/entrylistbyyear" element={<EntryListByYear />} />
+                <Route path="/allentries" element={<EntryList />} />
             </>
         )
     )

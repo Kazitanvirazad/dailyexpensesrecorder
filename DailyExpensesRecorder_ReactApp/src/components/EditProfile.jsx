@@ -5,7 +5,6 @@ import '../css/googlefonts.css';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-import bg1 from '../assets/img/bg1.jpg.webp';
 import constants from '../utils/constants.json';
 import Cookies from 'js-cookie';
 import { trimFormData } from '../utils/utilityHelper';
@@ -243,7 +242,6 @@ const EditProfile = () => {
                     <div className="row justify-content-center">
                         <div className="col-md-7 col-lg-5">
                             <div className="wrap">
-                                <div className="img" style={{ backgroundImage: `url(${bg1})` }}></div>
                                 <div className="login-wrap p-4 p-md-5">
                                     <div className="d-flex">
                                         <div className="w-100">

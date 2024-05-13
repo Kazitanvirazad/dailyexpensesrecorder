@@ -4,9 +4,9 @@ import net.expenses.recorder.dao.Entry;
 import net.expenses.recorder.dao.User;
 import net.expenses.recorder.dto.EntryDto;
 import net.expenses.recorder.dto.EntryFormDto;
+import net.expenses.recorder.dto.EntryModifyFormDto;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * @author Kazi Tanvir Azad
@@ -14,11 +14,15 @@ import java.util.function.Consumer;
 public interface EntryService {
     void createEntry(User user, EntryFormDto entryForm);
 
-    void modifyEntry(Entry entry);
+    void modifyEntry(EntryModifyFormDto entryModifyFormDto);
 
-    void modifyEntry(Consumer<Entry> entryConsumer, Entry entry);
+    List<EntryDto> getAllEntriesByEntryYear(User user, String year);
 
-    List<EntryDto> getAllEntries(User user);
+    List<EntryDto> getAllEntriesByEntryMonth(User user, String year, String month);
 
     void calculateEntryAmount(Entry entry);
+
+    void incrementItemCount(User user, Entry entry);
+
+    void decrementItemCount(User user, Entry entry);
 }

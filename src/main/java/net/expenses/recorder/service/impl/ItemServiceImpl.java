@@ -67,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> getItemsByEntry(Entry entry) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<List<Item>> optionalItems = itemRepository.getItemsByEntry(entry.getEntryId().toString(), user.getUserId());
+        Optional<List<Item>> optionalItems = itemRepository.getItemsByEntry(entry.getEntryId(), user.getUserId());
         return optionalItems.orElseGet(ArrayList::new);
     }
 
