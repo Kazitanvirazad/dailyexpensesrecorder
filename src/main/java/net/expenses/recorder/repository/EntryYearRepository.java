@@ -19,9 +19,10 @@ public interface EntryYearRepository extends JpaRepository<EntryYear, UUID> {
 
     @Query(value = "SELECT ey.entryyearid, ey.userid, ey.year, ey.year_itemcount, ey.year_entrycount " +
             "FROM EXPENSE_RECORDER.entry_year ey WHERE ey.userid = :userId AND ey.year = :year", nativeQuery = true)
-    Optional<List<EntryYear>> getReferenceByEntry(@Param(value = "userId") Long userId, @Param(value = "year") String year);
+    Optional<List<EntryYear>> getReferenceByEntry(@Param(value = "userId") Long userId,
+                                                  @Param(value = "year") String year);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE EXPENSE_RECORDER.entry_year SET year_entrycount = :entryCount, year_itemcount = :itemCount " +
             "WHERE entryyearid = :entryYearId", nativeQuery = true)
     void modifyEntryYear(@Param(value = "entryYearId") UUID entryYearId,
@@ -29,12 +30,12 @@ public interface EntryYearRepository extends JpaRepository<EntryYear, UUID> {
                          @Param(value = "itemCount") Integer itemCount);
 
     @Modifying
-    @Query(value = "UPDATE EXPENSE_RECORDER.entry_year SET year_entrycount = :count WHERE entryyearid = :id", nativeQuery = true)
-    void modifyYearEntryCountById(@Param(value = "count") int count, @Param(value = "id") UUID id);
-
-    @Modifying
-    @Query(value = "UPDATE EXPENSE_RECORDER.entry_year SET year_itemcount = :count WHERE entryyearid = :id", nativeQuery = true)
-    void modifyYearEntryItemCountById(@Param(value = "count") int count, @Param(value = "id") UUID id);
+    @Query(value = "UPDATE EXPENSE_RECORDER.entry_year " +
+            "SET year_itemcount = :itemCount, year_entrycount = :entryCount " +
+            "WHERE entryyearid = :id", nativeQuery = true)
+    void modifyYearEntryItemCountById(@Param(value = "entryCount") int entryCount,
+                                      @Param(value = "itemCount") int itemCount,
+                                      @Param(value = "id") UUID id);
 
     @Modifying
     @Query(value = "DELETE FROM EXPENSE_RECORDER.entry_year WHERE entryyearid = :id", nativeQuery = true)

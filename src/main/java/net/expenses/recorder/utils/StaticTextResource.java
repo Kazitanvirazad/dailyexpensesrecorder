@@ -5,4 +5,5 @@ package net.expenses.recorder.utils;
  */
 public interface StaticTextResource {
     String DEFAULT_BIO = "Add more about yourself!";
+    String SERVER_ERROR_GENERIC_MESSAGE = "Something went wrong.";
 }

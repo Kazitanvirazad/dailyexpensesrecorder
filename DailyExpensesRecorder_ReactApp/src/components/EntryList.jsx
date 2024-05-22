@@ -15,15 +15,21 @@ const EntryList = () => {
     const handleAddEntryNavigatorHandler = (event) => {
         event.preventDefault();
         let year = location.state ? location.state.year : null;
-        if (year)
-            navigate("/addentry", { state: { page: "/allentries", year: year } });
+        let month = location.state ? location.state.month : null;
+        if (year && month)
+            navigate("/addentry", { state: { page: "/allentries", year: year, month: month } });
         else
             navigate("/addentry");
     };
 
-    const handleListEntryByYearNavigatorHandler = (event) => {
+    const handleEntryMonthNavigatorHandler = (event) => {
         event.preventDefault();
-        navigate("/entrylistbyyear");
+        let year = location.state ? location.state.year : null;
+        if (!year) {
+            navigate("/entrylistbyyear");
+            return;
+        }
+        navigate("/entrylistbymonth", { state: { year: year } });
     };
 
     const handleHomeNavigatorHandler = (event) => {
@@ -32,23 +38,25 @@ const EntryList = () => {
     };
 
     useEffect(() => {
+        let year = location.state ? location.state.year : null;
+        let month = location.state ? location.state.month : null;
+
         const token = Cookies.get(constants.BEARER_TOKEN);
 
         if (!token) {
-            navigate("/login", { state: { page: "/allentries" } });
+            navigate("/login", { state: { page: "/allentries", year: year, month: month } });
+            return;
         }
 
         let hostname = import.meta.env.VITE_API_HOSTNAME;
         let getallentryapi = import.meta.env.VITE_API_GETALLENTRY;
         let method = import.meta.env.VITE_API_METHOD_GETALLENTRY;
 
-        let year = location.state ? location.state.year : null;
-
-        if (!year) {
+        if (!year || !month) {
             navigate("/entrylistbyyear");
         }
 
-        getallentryapi += `?year=${year}`;
+        getallentryapi += `?year=${year}&month=${month}`;
 
         fetch(hostname + getallentryapi, {
             method: method,
@@ -58,7 +66,7 @@ const EntryList = () => {
         }).then(response => {
             if (response.status == 401) {
                 alert("Login to continue");
-                navigate("/login", { state: { page: "/entrylistbyyear" } });
+                navigate("/login", { state: { page: "/allentries", year: year, month: month } });
             } else {
                 return response.json();
             }
@@ -88,7 +96,7 @@ const EntryList = () => {
                                     <div className="d-flex">
                                         <div className="w-100" style={{ textAlign: "center" }}>
                                             <h3 className="mb-4">{entries && entries.length > 0 ? "Entries" : "Entry"}</h3>
-                                            <a href="#" onClick={handleListEntryByYearNavigatorHandler}
+                                            <a href="#" onClick={handleEntryMonthNavigatorHandler}
                                                 className="text-right position-absolute top-0 start-0" style={{
                                                     marginTop: "35px",
                                                     marginLeft: "25px"

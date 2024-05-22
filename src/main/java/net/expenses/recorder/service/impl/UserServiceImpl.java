@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService, CommonConstants {
             return new JwtTokenDto(JWT_BEARER, TOKEN_EXPIRY_SECONDS, token);
         } catch (NoSuchAlgorithmException exception) {
             log.error(exception.getMessage());
-            throw new ServerErrorException("Something went wrong.");
+            throw new ServerErrorException(SERVER_ERROR_GENERIC_MESSAGE);
         }
     }
 
@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService, CommonConstants {
             hashedPassword = createPasswordHash(userRegistrationFormDto.getPassword().trim());
         } catch (NoSuchAlgorithmException exception) {
             log.error(exception.getMessage());
-            throw new ServerErrorException("Something went wrong.");
+            throw new ServerErrorException(SERVER_ERROR_GENERIC_MESSAGE);
         }
         user.setHashedPassword(hashedPassword);
         user.setPhone(userRegistrationFormDto.getPhone().trim());

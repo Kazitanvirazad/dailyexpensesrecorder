@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @AllArgsConstructor
 @Getter
-public class JwtTokenDto implements ResponseDto, Serializable {
+public final class JwtTokenDto implements ResponseDto, Serializable {
     @Serial
     private static final long serialVersionUID = -6357287078769829129L;
     @JsonProperty(value = "token_type")

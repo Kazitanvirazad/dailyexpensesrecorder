@@ -57,6 +57,7 @@ const Home = () => {
 
         if (!token) {
             navigate("/login", { state: { page: "/home" } });
+            return;
         }
         let hostname = import.meta.env.VITE_API_HOSTNAME;
         let loginapi = import.meta.env.VITE_API_USERDETAIL;

@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class EntryMonthDto {
+public final class EntryMonthDto {
     private String year;
     private String month;
     private Integer itemCount;

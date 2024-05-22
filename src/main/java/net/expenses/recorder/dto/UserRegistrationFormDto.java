@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class UserRegistrationFormDto implements RequestDto, Serializable {
+public final class UserRegistrationFormDto implements RequestDto, Serializable {
 
     @Serial
     private static final long serialVersionUID = 6212850937115957704L;

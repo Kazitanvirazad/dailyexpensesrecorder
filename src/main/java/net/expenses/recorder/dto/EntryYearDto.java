@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class EntryYearDto {
+public final class EntryYearDto {
     private String year;
     private Integer itemCount;
     private Integer entryCount;

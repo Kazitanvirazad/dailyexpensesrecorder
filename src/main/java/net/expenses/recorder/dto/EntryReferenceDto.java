@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 /**
  * @author Kazi Tanvir Azad
  */
@@ -14,13 +12,8 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
-public final class EntryDto {
+public final class EntryReferenceDto {
     private String entryId;
-    private Date creationTime;
     private String month;
     private String year;
-    private Double totalAmount;
-    private String desc;
-    private Date lastModified;
-    private Integer itemCount;
 }

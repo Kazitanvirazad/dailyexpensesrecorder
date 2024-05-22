@@ -14,8 +14,6 @@ import java.util.UUID;
 public interface EntryYearService {
     void createEntryYear(Entry entry);
 
-    void incrementYearEntryCount(EntryYear entryYear);
-
     void incrementYearEntryItemCount(EntryYear entryYear, int itemCount);
 
     void decrementEntryFromEntryYear(EntryYear entryYear, Integer itemCount);

@@ -80,7 +80,14 @@ const LoginPage = () => {
                     Cookies.set(constants.BEARER_TOKEN, token);
                 }
                 let lastVisitedPage = location.state ? location.state.page : null;
-                if (lastVisitedPage != null)
+                let year = location.state ? location.state.year : null;
+                let month = location.state ? location.state.month : null;
+
+                if ((lastVisitedPage && year && month))
+                    navigate(lastVisitedPage, { state: { year: year, month: month } });
+                else if (lastVisitedPage && year)
+                    navigate(lastVisitedPage, { state: { year: year } });
+                else if (lastVisitedPage)
                     navigate(lastVisitedPage);
                 else
                     navigate("/home");

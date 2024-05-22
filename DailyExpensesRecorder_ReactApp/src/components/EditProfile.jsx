@@ -34,6 +34,7 @@ const EditProfile = () => {
 
             if (!token) {
                 navigate("/login", { state: { page: "/editprofile" } });
+                return;
             }
 
             let hostname = import.meta.env.VITE_API_HOSTNAME;
@@ -144,6 +145,7 @@ const EditProfile = () => {
 
         if (!token) {
             navigate("/login", { state: { page: "/editprofile" } });
+            return;
         }
 
         fetch(hostname + updateapi, {

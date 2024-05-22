@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.expenses.recorder.dao.Entry;
+import net.expenses.recorder.dao.EntryMonth;
 import net.expenses.recorder.dao.EntryYear;
 import net.expenses.recorder.dao.Item;
 import net.expenses.recorder.dao.User;
@@ -12,9 +13,11 @@ import net.expenses.recorder.dao.enums.MonthName;
 import net.expenses.recorder.dto.EntryDto;
 import net.expenses.recorder.dto.EntryFormDto;
 import net.expenses.recorder.dto.EntryModifyFormDto;
+import net.expenses.recorder.dto.EntryReferenceDto;
 import net.expenses.recorder.exception.EntryException;
 import net.expenses.recorder.exception.InvalidInputException;
 import net.expenses.recorder.repository.EntryRepository;
+import net.expenses.recorder.service.EntryMonthService;
 import net.expenses.recorder.service.EntryService;
 import net.expenses.recorder.service.EntryYearService;
 import net.expenses.recorder.service.ItemService;
@@ -45,10 +48,11 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
     private final ItemService itemService;
     private final UserService userService;
     private final EntryYearService entryYearService;
+    private final EntryMonthService entryMonthService;
 
     @Transactional
     @Override
-    public void createEntry(User user, EntryFormDto entryForm) {
+    public EntryReferenceDto createEntry(User user, EntryFormDto entryForm) {
         EntryValidation.validateEntryForm(entryForm);
 
         if (user == null) {
@@ -75,11 +79,14 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
         userService.incrementEntry(user);
         entry = entryRepository.save(entry);
         entryYearService.createEntryYear(entry);
+        entryMonthService.createEntryMonth(entry);
+        return new EntryReferenceDto(entry.getEntryId().toString(), getFormattedDate(entry.getEntryMonth(), MONTH_FORMAT),
+                getFormattedDate(entry.getEntryMonth(), YEAR_FORMAT));
     }
 
     @Transactional
     @Override
-    public void modifyEntry(EntryModifyFormDto entryModifyFormDto) {
+    public EntryReferenceDto modifyEntry(EntryModifyFormDto entryModifyFormDto) {
         EntryValidation.validateEntryModifyForm(entryModifyFormDto);
 
         MonthName monthName = getMonthByName(entryModifyFormDto.getMonth().trim());
@@ -91,6 +98,9 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
             EntryYear entryYear = entryYearService.getEntryYearByEntry(entry);
             entryYearService.decrementEntryFromEntryYear(entryYear, entry.getItemCount());
 
+            EntryMonth entryMonth = entryMonthService.getEntryMonthByEntry(entry);
+            entryMonthService.decrementEntryFromEntryMonth(entryMonth, entry.getItemCount());
+
             entry.setMonthName(monthName);
             if (StringUtils.hasText(entryModifyFormDto.getDescription()))
                 entry.setDescription(entryModifyFormDto.getDescription());
@@ -101,8 +111,25 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
             entry.setEntryMonth(getEntryDate(monthName, entryModifyFormDto.getYear()));
             entry = entryRepository.save(entry);
             entryYearService.createEntryYear(entry);
-        } catch (PersistenceException exception) {
+            entryMonthService.createEntryMonth(entry);
+            return new EntryReferenceDto(entry.getEntryId().toString(), getFormattedDate(entry.getEntryMonth(), MONTH_FORMAT),
+                    getFormattedDate(entry.getEntryMonth(), YEAR_FORMAT));
+        } catch (PersistenceException | IllegalArgumentException exception) {
             throw new EntryException("Invalid Entry selection!");
+        }
+    }
+
+    @Override
+    public EntryDto getEntryById(String entryId) {
+        if (!StringUtils.hasText(entryId))
+            throw new EntryException("Invalid Entry Id!");
+        try {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Optional<Entry> optionalEntry = entryRepository.findReferenceByEntryId(user.getUserId(), UUID.fromString(entryId));
+            Entry entry = optionalEntry.orElseThrow(() -> new EntryException("Invalid Entry Id!"));
+            return getEntry(entry);
+        } catch (IllegalArgumentException exception) {
+            throw new EntryException("Malformed Entry Id!");
         }
     }
 
@@ -123,10 +150,9 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
     public List<EntryDto> getAllEntriesByEntryMonth(User user, String year, String month) {
         EntryValidation.validateEntryYear(year);
         int monthIndex = getMonthIndex(getMonthByName(month));
-        String start = year + "-" + monthIndex + "-1";
-        String end = year + "-" + monthIndex + "-" + getMonthLastDate(Integer.parseInt(year), monthIndex);
+        String entryMonth = year + "-" + monthIndex + "-1";
         Optional<List<Entry>> optionalEntries = entryRepository.findAllByByUserEntryMonth(user.getUserId(),
-                Date.valueOf(start), Date.valueOf(end));
+                Date.valueOf(entryMonth));
         return getAllEntries(optionalEntries.orElseGet(ArrayList::new));
     }
 
@@ -246,32 +272,5 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
 
     private String getDateString(MonthName monthName, int year) {
         return year + "-" + getMonthIndex(monthName) + "-1";
-    }
-
-    private int getMonthLastDate(int year, int month) {
-        if (month > 12) {
-            throw new InvalidInputException("Invalid month name input. Month name should be at" +
-                    " least first three letters of the actual month.");
-        }
-        if (month == 2) {
-            if (year % 100 == 0) {
-                if (year % 400 == 0) {
-                    return 29;
-                } else {
-                    return 28;
-                }
-            } else if (year % 4 == 0) {
-                return 29;
-            } else {
-                return 28;
-            }
-        }
-        if (month < 8 && (month % 2 != 0)) {
-            return 31;
-        } else if (month > 7 && (month % 2 == 0)) {
-            return 31;
-        } else {
-            return 30;
-        }
     }
 }

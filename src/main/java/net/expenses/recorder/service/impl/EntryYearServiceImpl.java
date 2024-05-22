@@ -36,7 +36,6 @@ public class EntryYearServiceImpl implements EntryYearService, CommonConstants {
         }
         EntryYear entryYear = getEntryYearByEntry(entry);
         if (entryYear != null) {
-            incrementYearEntryCount(entryYear);
             incrementYearEntryItemCount(entryYear, entry.getItemCount());
             return;
         }
@@ -50,22 +49,14 @@ public class EntryYearServiceImpl implements EntryYearService, CommonConstants {
 
     @Transactional
     @Override
-    public void incrementYearEntryCount(EntryYear entryYear) {
-        if (entryYear == null) {
-            throw new EntryYearException("Invalid EntryYear");
-        }
-        int count = entryYear.getYearEntryCount() + 1;
-        entryYearRepository.modifyYearEntryCountById(count, entryYear.getEntryYearId());
-    }
-
-    @Transactional
-    @Override
     public void incrementYearEntryItemCount(EntryYear entryYear, int itemCount) {
         if (entryYear == null) {
             throw new EntryYearException("Invalid EntryYear");
         }
-        int count = entryYear.getYearItemCount() + itemCount;
-        entryYearRepository.modifyYearEntryItemCountById(count, entryYear.getEntryYearId());
+        int entryCount = entryYear.getYearEntryCount() + 1;
+        itemCount = entryYear.getYearItemCount() + itemCount;
+
+        entryYearRepository.modifyYearEntryItemCountById(entryCount, itemCount, entryYear.getEntryYearId());
     }
 
     @Transactional
@@ -80,6 +71,7 @@ public class EntryYearServiceImpl implements EntryYearService, CommonConstants {
 
         if (existingEntryCount <= 1) {
             deleteEntryYear(entryYear.getEntryYearId());
+            return;
         }
 
         existingEntryCount = existingEntryCount - 1;
@@ -118,7 +110,6 @@ public class EntryYearServiceImpl implements EntryYearService, CommonConstants {
         if (user == null) {
             user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         }
-        List<EntryYearDto> entryYearDtoList = new ArrayList<>();
         Optional<List<EntryYear>> optionalList = entryYearRepository.getAllEntryYear(user.getUserId());
         return getAllEntryYear(optionalList.orElseGet(ArrayList::new));
     }

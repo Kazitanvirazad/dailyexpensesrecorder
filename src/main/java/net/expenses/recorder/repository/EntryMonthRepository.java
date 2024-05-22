@@ -33,4 +33,25 @@ public interface EntryMonthRepository extends JpaRepository<EntryMonth, UUID> {
             @Param(value = "entryCount") int entryCount,
             @Param(value = "itemCount") int itemCount,
             @Param(value = "entryMonthId") UUID entryMonthId);
+
+    @Query(value = "SELECT em.entrymonthid, em.userid, em.month, em.year, em.month_itemcount, em.month_entrycount " +
+            "FROM EXPENSE_RECORDER.entry_month em " +
+            "WHERE em.userid = :userId AND em.year = :year", nativeQuery = true)
+    Optional<List<EntryMonth>> getAllEntryMonth(
+            @Param(value = "userId") Long userId,
+            @Param(value = "year") String year);
+
+    @Modifying
+    @Query(value = "DELETE FROM EXPENSE_RECORDER.entry_month WHERE entrymonthid = :entryMonthId",
+            nativeQuery = true)
+    void deleteEntryMonth(@Param(value = "entryMonthId") UUID entryMonthId);
+
+    @Modifying
+    @Query(value = "UPDATE EXPENSE_RECORDER.entry_month " +
+            "SET month_entrycount = :entryCount, month_itemcount = :itemCount " +
+            "WHERE entrymonthid = :entryMonthId", nativeQuery = true)
+    void modifyEntryMonth(
+            @Param(value = "entryMonthId") UUID entryMonthId,
+            @Param(value = "entryCount") Integer entryCount,
+            @Param(value = "itemCount") Integer itemCount);
 }

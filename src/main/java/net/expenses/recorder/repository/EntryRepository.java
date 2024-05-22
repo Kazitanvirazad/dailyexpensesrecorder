@@ -18,8 +18,10 @@ import java.util.UUID;
 @Repository
 public interface EntryRepository extends JpaRepository<Entry, UUID> {
     @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.amount, e.description, " +
-            "e.lastmodified, e.itemcount FROM EXPENSE_RECORDER.entry e WHERE e.userid = :userid", nativeQuery = true)
-    Optional<List<Entry>> findAllByUser(@Param(value = "userid") Long userId);
+            "e.lastmodified, e.itemcount FROM EXPENSE_RECORDER.entry e WHERE e.userid = :userid AND e.entryid = :entryId",
+            nativeQuery = true)
+    Optional<Entry> findReferenceByEntryId(@Param(value = "userid") Long userId,
+                                           @Param(value = "entryId") UUID entryId);
 
     @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.amount, e.description, " +
             "e.lastmodified, e.itemcount FROM EXPENSE_RECORDER.entry e WHERE e.userid = :userid " +
@@ -30,14 +32,14 @@ public interface EntryRepository extends JpaRepository<Entry, UUID> {
 
     @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.amount, e.description, " +
             "e.lastmodified, e.itemcount FROM EXPENSE_RECORDER.entry e WHERE e.userid = :userid " +
-            "AND e.entrymonth BETWEEN :start AND :end ORDER BY e.creationtime DESC", nativeQuery = true)
+            "AND e.entrymonth = :entryMonth ORDER BY e.lastmodified DESC", nativeQuery = true)
     Optional<List<Entry>> findAllByByUserEntryMonth(@Param(value = "userid") Long userId,
-                                                    @Param(value = "start") Date start,
-                                                    @Param(value = "end") Date end);
+                                                    @Param(value = "entryMonth") Date entryMonth);
 
     @Modifying
     @Query(value = "UPDATE EXPENSE_RECORDER.entry SET itemcount = :count " +
             "WHERE userid = :userId AND entryid = :entryId", nativeQuery = true)
-    void modifyItemCount(@Param(value = "count") int count, @Param(value = "userId") Long userId,
+    void modifyItemCount(@Param(value = "count") int count,
+                         @Param(value = "userId") Long userId,
                          @Param(value = "entryId") UUID entryId);
 }

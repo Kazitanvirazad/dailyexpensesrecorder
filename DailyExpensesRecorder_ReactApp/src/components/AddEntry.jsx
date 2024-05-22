@@ -1,8 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import Select from "react-select";
-import '../css/signuplogin.css';
-import '../css/googlefonts.css';
 import rawData from "../utils/rawData.json";
 import Cookies from 'js-cookie';
 import constants from '../utils/constants.json';
@@ -72,6 +70,7 @@ const AddEntry = () => {
 
         if (!token) {
             navigate("/login", { state: { page: "/addentry" } });
+            return;
         }
 
         let hostname = import.meta.env.VITE_API_HOSTNAME;
@@ -89,14 +88,26 @@ const AddEntry = () => {
         }).then(response => {
             if (response.status == 401) {
                 alert("Login to continue");
-                navigate("/login", { state: { page: "/addentry" } });
+                let year = location.state ? location.state.year : null;
+                let month = location.state ? location.state.month : null;
+                if (lastVisitedPage && year && month)
+                    navigate("/login", { state: { page: "/addentry", year: year, month: month } });
+                else if (lastVisitedPage && year)
+                    navigate("/login", { state: { page: "/addentry", year: year } });
+                else
+                    navigate("/login", { state: { page: "/addentry" } });
             } else {
                 return response.json();
             }
         }).then(data => {
             if (data) {
                 alert(data.message);
-                navigate("/allentries", { state: { year: addEntryData["year"] } });
+                let year = data.data && data.data.year ? data.data.year : null;
+                let month = data.data && data.data.month ? data.data.month : null;
+                if (year && month)
+                    navigate("/allentries", { state: { year: year, month: month } });
+                else
+                    navigate("/entrylistbyyear");
             }
         }).catch(err => {
             console.log(err);
@@ -108,7 +119,11 @@ const AddEntry = () => {
         event.preventDefault();
         let lastVisitedPage = location.state ? location.state.page : null;
         let year = location.state ? location.state.year : null;
-        if (lastVisitedPage && year)
+        let month = location.state ? location.state.month : null;
+
+        if (lastVisitedPage && year && month)
+            navigate(lastVisitedPage, { state: { year: year, month: month } });
+        else if (lastVisitedPage && year)
             navigate(lastVisitedPage, { state: { year: year } });
         else
             navigate("/entrylistbyyear");
@@ -121,7 +136,6 @@ const AddEntry = () => {
 
     return (
         <>
-            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"></link>
             <section className="ftco-section">
                 <div className="container">
                     <div className="row justify-content-center">
