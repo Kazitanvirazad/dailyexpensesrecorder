@@ -49,6 +49,9 @@ public class Entry {
     @Column(name = "entrymonth", columnDefinition = "DATE", nullable = false)
     private Date entryMonth;
 
+    @Column(name = "entryname", columnDefinition = "VARCHAR(100)", nullable = false)
+    private String entryName;
+
     @Column(name = "amount", columnDefinition = "FLOAT8")
     private Double amount;
 

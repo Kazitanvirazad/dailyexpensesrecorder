@@ -6,6 +6,7 @@ import AddEntry from "./components/AddEntry";
 import EntryList from "./components/EntryList";
 import EntryListByYear from "./components/EntryListByYear";
 import EntryListByMonth from "./components/EntryListByMonth";
+import ModifyEntry from "./components/ModifyEntry";
 
 import {
     createBrowserRouter,
@@ -28,6 +29,7 @@ const Routers = () => {
                 <Route path="/entrylistbyyear" element={<EntryListByYear />} />
                 <Route path="/entrylistbymonth" element={<EntryListByMonth />} />
                 <Route path="/allentries" element={<EntryList />} />
+                <Route path="/modifyentry" element={<ModifyEntry />} />
             </>
         )
     )

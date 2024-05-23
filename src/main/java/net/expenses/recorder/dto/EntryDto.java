@@ -17,6 +17,9 @@ import java.util.Date;
 public final class EntryDto {
     private String entryId;
     private Date creationTime;
+    private String entryName;
+    private String weekDay;
+    private String day;
     private String month;
     private String year;
     private Double totalAmount;

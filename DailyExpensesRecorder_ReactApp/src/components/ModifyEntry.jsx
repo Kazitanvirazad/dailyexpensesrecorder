@@ -1,15 +1,13 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import Select from "react-select";
-import rawData from "../utils/rawData.json";
+import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import constants from '../utils/constants.json';
 import { trimFormData, getMonthLastDate, getMonthIndex } from '../utils/validationHelper';
 import backicon2 from "../assets/backicon2.svg";
 
-let addEntryData = {};
+let modifyEntryData = {};
 
-const AddEntry = () => {
+const ModifyEntry = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -18,29 +16,77 @@ const AddEntry = () => {
     const [dayValidationError, setDayValidationError] = useState(null);
     const [nameValidationError, setNameValidationError] = useState(null);
 
+    const [entry, setEntry] = useState({});
+
+    const entryId = location.state ? location.state.entry_id : null;
+    const year = location.state ? location.state.year : null;
+    const month = location.state ? location.state.month : null;
+
+    useEffect(() => {
+
+        if (!entryId) {
+            navigate("/allentries", { state: { year: year, month: month } });
+            return;
+        }
+
+        if (!year || !month) {
+            navigate("/entrylistbyyear");
+            return;
+        }
+
+        const token = Cookies.get(constants.BEARER_TOKEN);
+
+        if (!token) {
+            navigate("/login", { state: { page: "/modifyentry", year: year, month: month, entry_id: entryId } });
+            return;
+        }
+
+        let hostname = import.meta.env.VITE_API_HOSTNAME;
+        let fetchEntryApiUrl = import.meta.env.VITE_API_GETENTRYBYID;
+        let method = import.meta.env.VITE_API_METHOD_GETENTRYBYID;
+
+        fetchEntryApiUrl += `?entry_id=${entryId}`;
+
+        fetch(hostname + fetchEntryApiUrl, {
+            method: method,
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Accept": "application/json"
+            }
+        }).then(response => {
+            if (response.status == 401) {
+                alert("Login to continue");
+                navigate("/login", { state: { page: "/modifyentry", year: year, month: month, entry_id: entryId } });
+            } else {
+                return response.json();
+            }
+        }).then(data => {
+            if (data && data.data) {
+                const fetchedEntry = data.data;
+                setEntry(fetchedEntry);
+                modifyEntryData["entry_id"] = fetchedEntry.entryId;
+                modifyEntryData["month"] = fetchedEntry.month;
+                modifyEntryData["year"] = fetchedEntry.year;
+                modifyEntryData["day"] = fetchedEntry.day;
+                modifyEntryData["entryName"] = fetchedEntry.entryName;
+                if (fetchedEntry.desc)
+                    modifyEntryData["description"] = fetchedEntry.desc;
+            }
+        }).catch(err => {
+            console.log(err);
+            alert("Server Error!");
+        });
+    }, []);
+
     const handleChange = (event) => {
         event.preventDefault();
         let name = event.currentTarget.dataset.attrname;
         let value = event.target.value;
-        addEntryData[name] = value ? value : null;
+        modifyEntryData[name] = value ? value : null;
         setYearValidationError(null);
         setMonthValidationError(null);
         setDayValidationError(null);
         setNameValidationError(null);
-    };
-
-    const handleMonthSelectChange = (event) => {
-        const value = event?.value;
-        addEntryData["month"] = value ? value : null;
-        setYearValidationError(null);
-        setMonthValidationError(null);
-    };
-
-    const handleYearSelectChange = (event) => {
-        const value = event?.value;
-        addEntryData["year"] = value ? value : null;
-        setYearValidationError(null);
-        setMonthValidationError(null);
     };
 
     const isValidFormData = (year, month, day, entryName) => {
@@ -52,12 +98,8 @@ const AddEntry = () => {
             setNameValidationError("Invalid Name selection.");
             return false;
         }
-        if (year == null) {
-            setYearValidationError("Select Year to proceed.");
-            return false;
-        }
-        if (isNaN(year) || !(year >= 1950 && year <= 2099)) {
-            setYearValidationError("Invalid Year selection.");
+        if (!month.match(/\S/)) {
+            setNameValidationError("Invalid Name selection.");
             return false;
         }
         if (month == null) {
@@ -68,13 +110,20 @@ const AddEntry = () => {
             setMonthValidationError("Invalid Month selection.");
             return false;
         }
+        if (year == null) {
+            setYearValidationError("Select Year to proceed.");
+            return false;
+        }
+        if (isNaN(year) || !(year >= 1950 && year <= 2099)) {
+            setYearValidationError("Invalid Year selection.");
+            return false;
+        }
         if (day == null) {
-            setDayValidationError("Enter Date to proceed.");
+            setDayValidationError("Select Date to proceed.");
             return false;
         }
         if (isNaN(day) || !(day > 0 && day <= getMonthLastDate(year, getMonthIndex(month)))) {
-            setDayValidationError("Invalid Date selection.Date should be between 1st to last date" +
-                " of the selected month. Ex: For January -> 1 to 31");
+            setDayValidationError("Invalid Date selection");
             return false;
         }
         return true;
@@ -82,41 +131,36 @@ const AddEntry = () => {
 
     const handleOnSubmit = (event) => {
         event.preventDefault();
-        trimFormData(addEntryData);
-        if (!isValidFormData(addEntryData.year, addEntryData.month, addEntryData.day, addEntryData.entryName)) {
+
+        trimFormData(modifyEntryData);
+
+        if (!isValidFormData(modifyEntryData.year, modifyEntryData.month, modifyEntryData.day, modifyEntryData.entryName)) {
             return;
         }
 
         const token = Cookies.get(constants.BEARER_TOKEN);
 
         if (!token) {
-            navigate("/login", { state: { page: "/addentry" } });
+            navigate("/login", { state: { page: "/modifyentry", year: year, month: month, entry_id: entryId } });
             return;
         }
 
         let hostname = import.meta.env.VITE_API_HOSTNAME;
-        let createapi = import.meta.env.VITE_API_CREATEENTRY;
-        let method = import.meta.env.VITE_API_METHOD_CREATEENTRY;
+        let updateapi = import.meta.env.VITE_API_UPDATEENTRY;
+        let method = import.meta.env.VITE_API_METHOD_UPDATEENTRY;
 
-        fetch(hostname + createapi, {
+        fetch(hostname + updateapi, {
             method: method,
             headers: {
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             },
-            body: JSON.stringify(addEntryData)
+            body: JSON.stringify(modifyEntryData)
         }).then(response => {
             if (response.status == 401) {
                 alert("Login to continue");
-                let year = location.state ? location.state.year : null;
-                let month = location.state ? location.state.month : null;
-                if (lastVisitedPage && year && month)
-                    navigate("/login", { state: { page: "/addentry", year: year, month: month } });
-                else if (lastVisitedPage && year)
-                    navigate("/login", { state: { page: "/addentry", year: year } });
-                else
-                    navigate("/login", { state: { page: "/addentry" } });
+                navigate("/login", { state: { page: "/modifyentry", year: year, month: month, entry_id: entryId } });
             } else {
                 return response.json();
             }
@@ -138,16 +182,7 @@ const AddEntry = () => {
 
     const handleBackButtonNavigatorHandler = (event) => {
         event.preventDefault();
-        let lastVisitedPage = location.state ? location.state.page : null;
-        let year = location.state ? location.state.year : null;
-        let month = location.state ? location.state.month : null;
-
-        if (lastVisitedPage && year && month)
-            navigate(lastVisitedPage, { state: { year: year, month: month } });
-        else if (lastVisitedPage && year)
-            navigate(lastVisitedPage, { state: { year: year } });
-        else
-            navigate("/entrylistbyyear");
+        navigate("/allentries", { state: { year: year, month: month } });
     };
 
     const handleHomeNavigatorHandler = (event) => {
@@ -170,7 +205,7 @@ const AddEntry = () => {
                                 <div className="login-wrap p-4 p-md-5">
                                     <div className="d-flex">
                                         <div className="w-100" style={{ textAlign: "center" }}>
-                                            <h3 className="mb-4">Add Entry</h3>
+                                            <h3 className="mb-4">Update Entry</h3>
                                             <a href="#" onClick={handleBackButtonNavigatorHandler}
                                                 className="text-right position-absolute top-0 start-0" style={{
                                                     marginTop: "35px",
@@ -182,57 +217,39 @@ const AddEntry = () => {
                                     <form className="signin-form" style={{ marginBottom: "80px" }}>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
                                             <input className="form-control" onChange={handleChange}
-                                                type="text" name="entryName" data-attrname="entryName" defaultValue=""
+                                                type="text" name="entryName" data-attrname="entryName" defaultValue={entry && entry.entryName}
                                                 id="entryName" required={true} />
                                             <label className="form-control-placeholder" htmlFor="entryName">Enter Name</label>
                                             <div className="error_desc">{nameValidationError && nameValidationError}</div>
                                         </div>
-                                        <div className="mb-5" style={{ marginTop: "50px" }}>
-                                            <Select
-                                                className="form-control"
-                                                id="month"
-                                                name="month"
-                                                isSearchable={true}
-                                                isClearable={true}
-                                                options={rawData.monthOptions}
-                                                onChange={handleMonthSelectChange}
-                                                isMulti={false}
-                                                placeholder={"Select Entry Month"}
-                                                required={true}
-                                            />
+                                        <div className="form-group mb-5" style={{ marginTop: "50px" }}>
+                                            <input className="form-control" onChange={handleChange}
+                                                type="text" name="month" data-attrname="month" defaultValue={entry && entry.month} id="month" required={true} />
+                                            <label className="form-control-placeholder" htmlFor="month">Add Month</label>
                                             <div className="error_desc">{monthValidationError && monthValidationError}</div>
                                         </div>
-                                        <div className="mb-5" style={{ marginTop: "50px" }}>
-                                            <Select
-                                                className="form-control"
-                                                id="year"
-                                                name="year"
-                                                isSearchable={true}
-                                                isClearable={true}
-                                                options={rawData.yearOptions}
-                                                onChange={handleYearSelectChange}
-                                                isMulti={false}
-                                                placeholder={"Select Year"}
-                                                required={true}
-                                            />
+                                        <div className="form-group mb-5" style={{ marginTop: "50px" }}>
+                                            <input className="form-control" onChange={handleChange}
+                                                type="text" name="year" data-attrname="year" defaultValue={entry && entry.year}
+                                                id="year" required={true} />
+                                            <label className="form-control-placeholder" htmlFor="year">Add Year</label>
                                             <div className="error_desc">{yearValidationError && yearValidationError}</div>
                                         </div>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
                                             <input className="form-control" onChange={handleChange}
-                                                type="text" name="description" data-attrname="day" defaultValue=""
+                                                type="text" name="description" data-attrname="day" defaultValue={entry && entry.day}
                                                 id="day" required={true} />
                                             <label className="form-control-placeholder" htmlFor="day">Enter Date</label>
                                             <div className="error_desc">{dayValidationError && dayValidationError}</div>
                                         </div>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
                                             <input className="form-control" onChange={handleChange}
-                                                type="text" name="description" data-attrname="description" defaultValue=""
-                                                id="description" required={true} />
+                                                type="text" name="description" data-attrname="description" defaultValue={entry && entry.desc} id="description" required={true} />
                                             <label className="form-control-placeholder" htmlFor="description">Add Description</label>
                                         </div>
                                         <div className="form-group" style={{ marginTop: "80px" }}>
                                             <button type="submit" className="form-control btn btn-primary rounded submit px-3"
-                                                onClick={handleOnSubmit}>Save Entry</button>
+                                                data-entryid={entry && entry.entryId} onClick={handleOnSubmit}>Update</button>
                                         </div>
                                     </form>
                                     <p className="text-center">Back to <a data-toggle="tab" href="#" onClick={handleHomeNavigatorHandler}>Home</a></p>
@@ -246,4 +263,4 @@ const AddEntry = () => {
     );
 };
 
-export default AddEntry;
+export default ModifyEntry;

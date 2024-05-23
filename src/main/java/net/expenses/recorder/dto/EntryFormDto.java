@@ -16,7 +16,9 @@ import java.io.Serializable;
 public final class EntryFormDto implements RequestDto, Serializable {
     @Serial
     private static final long serialVersionUID = -1804801581526861783L;
+    private String entryName;
     private String description;
     private Integer year;
     private String month;
+    private Integer day;
 }

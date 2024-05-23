@@ -17,24 +17,25 @@ import java.util.UUID;
  */
 @Repository
 public interface EntryRepository extends JpaRepository<Entry, UUID> {
-    @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.amount, e.description, " +
+    @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.entryname, e.amount, e.description, " +
             "e.lastmodified, e.itemcount FROM EXPENSE_RECORDER.entry e WHERE e.userid = :userid AND e.entryid = :entryId",
             nativeQuery = true)
     Optional<Entry> findReferenceByEntryId(@Param(value = "userid") Long userId,
                                            @Param(value = "entryId") UUID entryId);
 
-    @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.amount, e.description, " +
+    @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.entryname, e.amount, e.description, " +
             "e.lastmodified, e.itemcount FROM EXPENSE_RECORDER.entry e WHERE e.userid = :userid " +
             "AND e.entrymonth BETWEEN :start AND :end ORDER BY e.entrymonth DESC", nativeQuery = true)
     Optional<List<Entry>> findAllByUserEntryYear(@Param(value = "userid") Long userId,
                                                  @Param(value = "start") Date start,
                                                  @Param(value = "end") Date end);
 
-    @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.amount, e.description, " +
+    @Query(value = "SELECT e.entryid, e.userid, e.creationtime, e.monthname, e.entrymonth, e.entryname, e.amount, e.description, " +
             "e.lastmodified, e.itemcount FROM EXPENSE_RECORDER.entry e WHERE e.userid = :userid " +
-            "AND e.entrymonth = :entryMonth ORDER BY e.lastmodified DESC", nativeQuery = true)
+            "AND e.entrymonth BETWEEN :start AND :end ORDER BY e.entrymonth DESC, e.lastmodified DESC", nativeQuery = true)
     Optional<List<Entry>> findAllByByUserEntryMonth(@Param(value = "userid") Long userId,
-                                                    @Param(value = "entryMonth") Date entryMonth);
+                                                    @Param(value = "start") Date start,
+                                                    @Param(value = "end") Date end);
 
     @Modifying
     @Query(value = "UPDATE EXPENSE_RECORDER.entry SET itemcount = :count " +

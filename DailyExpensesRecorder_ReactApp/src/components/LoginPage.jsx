@@ -82,8 +82,11 @@ const LoginPage = () => {
                 let lastVisitedPage = location.state ? location.state.page : null;
                 let year = location.state ? location.state.year : null;
                 let month = location.state ? location.state.month : null;
+                let entryId = location.state ? location.state.entry_id : null;
 
-                if ((lastVisitedPage && year && month))
+                if (lastVisitedPage && year && month && entryId)
+                    navigate(lastVisitedPage, { state: { year: year, month: month, entry_id: entryId } });
+                else if (lastVisitedPage && year && month)
                     navigate(lastVisitedPage, { state: { year: year, month: month } });
                 else if (lastVisitedPage && year)
                     navigate(lastVisitedPage, { state: { year: year } });

@@ -37,6 +37,14 @@ const EntryList = () => {
         navigate("/home");
     };
 
+    const handleNavigateModifyEntry = (event) => {
+        event.preventDefault();
+        let entryId = event.currentTarget.dataset.entryid;
+        let year = location.state ? location.state.year : null;
+        let month = location.state ? location.state.month : null;
+        navigate("/modifyentry", { state: { entry_id: entryId, year: year, month: month } });
+    };
+
     useEffect(() => {
         let year = location.state ? location.state.year : null;
         let month = location.state ? location.state.month : null;
@@ -115,9 +123,16 @@ const EntryList = () => {
                                             return <div key={index} className="card" style={{ width: 'auto', marginBottom: '10px' }}>
                                                 <div className="card-body">
                                                     <h5 className="card-title">
-                                                        {entry.month && entry.year && `${entry.month} ${entry.year}`}</h5>
-                                                    <a className="text-right position-absolute top-0 end-0" data-entryid={entry.entryId && entry.entryId}><img style={{ height: "25px" }}
-                                                        src={editicon} alt="Modify Entry" /></a>
+                                                        {entry.entryName && entry.entryName}</h5>
+                                                    <h5 className="card-title">
+                                                        {entry.month && entry.year && entry.day && `${entry.day} ${entry.month} ${entry.year}`}</h5>
+                                                    <a className="text-right position-absolute top-0 end-0" data-entryid={entry.entryId && entry.entryId} onClick={handleNavigateModifyEntry}>
+                                                        <img style={{ height: "25px" }}
+                                                            src={editicon} alt="Modify Entry" /></a>
+                                                    {entry.weekDay && entry.month && entry.day &&
+                                                        <p className="card-text"
+                                                            style={{ fontSize: ".9rem", marginBottom: "5px", marginTop: "5px" }}>
+                                                            Entry for : {entry.weekDay} {entry.day}/{entry.month}</p>}
                                                     {entry.creationTime &&
                                                         <p className="card-text"
                                                             style={{ fontSize: ".9rem", marginBottom: "5px", marginTop: "5px" }}>
