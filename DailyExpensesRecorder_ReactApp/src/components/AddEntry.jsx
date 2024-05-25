@@ -4,7 +4,8 @@ import Select from "react-select";
 import rawData from "../utils/rawData.json";
 import Cookies from 'js-cookie';
 import constants from '../utils/constants.json';
-import { trimFormData, getMonthLastDate, getMonthIndex } from '../utils/validationHelper';
+import { trimFormData, getMonthLastDate, getMonthIndex, isValidMonthName, isValidDateSelection, isValidYear } from '../utils/helpers/validationHelper';
+import { getEntryYearSelectionData } from "../utils/helpers/entryHelper";
 import backicon2 from "../assets/backicon2.svg";
 
 let addEntryData = {};
@@ -34,6 +35,8 @@ const AddEntry = () => {
         addEntryData["month"] = value ? value : null;
         setYearValidationError(null);
         setMonthValidationError(null);
+        setDayValidationError(null);
+        setNameValidationError(null);
     };
 
     const handleYearSelectChange = (event) => {
@@ -41,6 +44,8 @@ const AddEntry = () => {
         addEntryData["year"] = value ? value : null;
         setYearValidationError(null);
         setMonthValidationError(null);
+        setDayValidationError(null);
+        setNameValidationError(null);
     };
 
     const isValidFormData = (year, month, day, entryName) => {
@@ -56,7 +61,7 @@ const AddEntry = () => {
             setYearValidationError("Select Year to proceed.");
             return false;
         }
-        if (isNaN(year) || !(year >= 1950 && year <= 2099)) {
+        if (!isValidYear(year)) {
             setYearValidationError("Invalid Year selection.");
             return false;
         }
@@ -64,7 +69,7 @@ const AddEntry = () => {
             setMonthValidationError("Select Month to proceed.");
             return false;
         }
-        if (!month.match(/\S/)) {
+        if (!isValidMonthName(month)) {
             setMonthValidationError("Invalid Month selection.");
             return false;
         }
@@ -73,8 +78,14 @@ const AddEntry = () => {
             return false;
         }
         if (isNaN(day) || !(day > 0 && day <= getMonthLastDate(year, getMonthIndex(month)))) {
-            setDayValidationError("Invalid Date selection.Date should be between 1st to last date" +
+            setDayValidationError("Invalid Date selection. Date should be between 1st to last date" +
                 " of the selected month. Ex: For January -> 1 to 31");
+            return false;
+        }
+        if (!isValidDateSelection(year, month, day)) {
+            setYearValidationError("Entry Year must be equal or before the present date.");
+            setMonthValidationError("Entry Month must be equal or before the present date.");
+            setDayValidationError("Entry Date must be equal or before the present date.");
             return false;
         }
         return true;
@@ -209,7 +220,7 @@ const AddEntry = () => {
                                                 name="year"
                                                 isSearchable={true}
                                                 isClearable={true}
-                                                options={rawData.yearOptions}
+                                                options={getEntryYearSelectionData()}
                                                 onChange={handleYearSelectChange}
                                                 isMulti={false}
                                                 placeholder={"Select Year"}

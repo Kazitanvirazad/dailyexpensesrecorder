@@ -1,5 +1,8 @@
 "use strict";
 
+import constants from "../constants.json";
+import { getEntryMaxEligibleYearSelection } from "./entryHelper.js";
+
 export const trimFormData = (formData) => {
     Object.keys(formData).forEach(key => {
         if (formData[key] != null && typeof formData[key] == 'string') {
@@ -53,4 +56,23 @@ export const getMonthIndex = (monthName) => {
         case "dec": return 12;
         default: return 0;
     };
+};
+
+export const isValidDateSelection = (year, month, day) => {
+    if (!isValidMonthName(month)) {
+        return false;
+    }
+    let inputDateString = year + "-" + getMonthIndex(month) + "-" + day;
+    let inputDateMillis = Date.parse(inputDateString);
+    let inputDate = new Date(inputDateMillis);
+    return inputDate == new Date() || inputDate < new Date();
+};
+
+export const isValidMonthName = (monthName) => {
+    const monthSet = new Set(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "jan", "feb", "mar", "apr", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]);
+    return monthName != null && monthName.length >= 3 && monthSet.has(monthName.toLowerCase()) && getMonthIndex(monthName) > 0;
+};
+
+export const isValidYear = (year) => {
+    return !isNaN(year) && (year >= constants.ENTRY_MIN_YEAR && year <= getEntryMaxEligibleYearSelection());
 };

@@ -5,12 +5,12 @@ import net.expenses.recorder.dto.EntryFormDto;
 import net.expenses.recorder.dto.EntryModifyFormDto;
 import net.expenses.recorder.exception.InvalidInputException;
 import net.expenses.recorder.utils.CommonConstants;
-import net.expenses.recorder.utils.CommonUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serial;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,8 +26,7 @@ public class EntryValidation implements CommonConstants {
             throw new InvalidInputException("Invalid or empty form!");
         if (!StringUtils.hasText(entryForm.getEntryName()))
             throw new InvalidInputException("Invalid Entry name input. Name must not be empty.");
-        if (entryForm.getYear() == null || !(entryForm.getYear() >= ENTRY_MIN_YEAR && entryForm.getYear() <= CommonUtils.ENTRY_MAX_YEAR()))
-            throw new InvalidInputException("Year selection must be from " + ENTRY_MIN_YEAR + " to " + CommonUtils.ENTRY_MAX_YEAR());
+        validateEntryYear(entryForm.getYear());
         if (!(isValidMonthName(entryForm.getMonth())))
             throw new InvalidInputException("Invalid month name input. Month name should be at" +
                     " least first three letters of the actual month. Ex: January -> Jan");
@@ -35,37 +34,41 @@ public class EntryValidation implements CommonConstants {
             throw new InvalidInputException("Invalid Date input. Date should be between 1st" +
                     " to last date of the selected month. Ex: For January -> 1 to 31");
         if (!isValidDateSelection(entryForm.getYear(), entryForm.getMonth(), entryForm.getDay()))
-            throw new InvalidInputException("Entry date must be equal or before the current date.");
+            throw new InvalidInputException("Entry date must be from " + ENTRY_MIN_YEAR + " to the current year.");
     }
 
-    public static void validateEntryModifyForm(EntryModifyFormDto entryModifyFormDto) {
-        if (entryModifyFormDto == null)
+    public static void validateEntryModifyForm(EntryModifyFormDto entryModifyForm) {
+        if (entryModifyForm == null)
             throw new InvalidInputException("Invalid or empty form!");
-        if (!StringUtils.hasText(entryModifyFormDto.getEntryName()))
+        if (!StringUtils.hasText(entryModifyForm.getEntryName()))
             throw new InvalidInputException("Invalid Entry name input. Name must not be empty.");
-        if (!StringUtils.hasText(entryModifyFormDto.getEntry_id()))
+        if (!StringUtils.hasText(entryModifyForm.getEntry_id()))
             throw new InvalidInputException("Invalid entry selection.");
-        if (entryModifyFormDto.getYear() == null ||
-                !(entryModifyFormDto.getYear() >= ENTRY_MIN_YEAR && entryModifyFormDto.getYear() <= CommonUtils.ENTRY_MAX_YEAR()))
-            throw new InvalidInputException("Year selection must be from " + ENTRY_MIN_YEAR + " to " + CommonUtils.ENTRY_MAX_YEAR());
-        if (!(isValidMonthName(entryModifyFormDto.getMonth())))
+        validateEntryYear(entryModifyForm.getYear());
+        if (!(isValidMonthName(entryModifyForm.getMonth())))
             throw new InvalidInputException("Invalid month name input. Month name should be at" +
                     " least first three letters of the actual month. Ex: January -> Jan");
-        if (!isValidDay(entryModifyFormDto.getDay(), entryModifyFormDto.getYear(), entryModifyFormDto.getMonth()))
+        if (!isValidDay(entryModifyForm.getDay(), entryModifyForm.getYear(), entryModifyForm.getMonth()))
             throw new InvalidInputException("Invalid Date input. Date should be between 1st" +
                     " to last date of the selected month. Ex: For January -> 1 to 31");
-        if (!isValidDateSelection(entryModifyFormDto.getYear(), entryModifyFormDto.getMonth(), entryModifyFormDto.getDay()))
-            throw new InvalidInputException("Entry date must be equal or before the current date.");
+        if (!isValidDateSelection(entryModifyForm.getYear(), entryModifyForm.getMonth(), entryModifyForm.getDay()))
+            throw new InvalidInputException("Entry date must be from " + ENTRY_MIN_YEAR + " to the current year.");
     }
 
     public static void validateEntryYear(String year) {
         try {
             int entryYear = Integer.parseInt(year);
-            if (!(entryYear >= ENTRY_MIN_YEAR && entryYear <= CommonUtils.ENTRY_MAX_YEAR())) {
-                throw new InvalidInputException("Year selection must be from " + ENTRY_MIN_YEAR + " to " + CommonUtils.ENTRY_MAX_YEAR());
+            if (entryYear < ENTRY_MIN_YEAR) {
+                throw new InvalidInputException("Year selection must be from " + ENTRY_MIN_YEAR + " to the current year.");
             }
         } catch (NumberFormatException exception) {
-            throw new InvalidInputException("Year selection must be a valid year from " + ENTRY_MIN_YEAR + " to " + CommonUtils.ENTRY_MAX_YEAR());
+            throw new InvalidInputException("Year selection must be a valid year from " + ENTRY_MIN_YEAR + " to the current year.");
+        }
+    }
+
+    public static void validateEntryYear(Integer year) {
+        if (year == null || year < ENTRY_MIN_YEAR) {
+            throw new InvalidInputException("Year selection must be from " + ENTRY_MIN_YEAR + " to the current year.");
         }
     }
 
@@ -73,13 +76,25 @@ public class EntryValidation implements CommonConstants {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
         String inputDateString = year + "-" + getMonthIndex(month) + "-" + day;
         try {
-            Date inputDate = simpleDateFormat.parse(inputDateString);
-            return inputDate.equals(new Date()) || inputDate.before(new Date());
+            return isValidDateSelection(simpleDateFormat.parse(inputDateString));
         } catch (ParseException exception) {
             log.error("Exception occurred while parsing input date due to malformed or invalid " +
                     "date input : {}", exception.getMessage());
             throw new InvalidInputException("Invalid date selection.", exception);
         }
+    }
+
+    public static boolean isValidDateSelection(Date inputDate) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+        String minEligibleEntryDateString = ENTRY_MIN_YEAR + "-1-1";
+        Date minEligibleEntryDate = simpleDateFormat.parse(minEligibleEntryDateString);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        Date currentDateWithOneDayAdded = calendar.getTime();
+
+        return (inputDate.equals(minEligibleEntryDate) || inputDate.after(minEligibleEntryDate))
+                && (inputDate.equals(currentDateWithOneDayAdded) || inputDate.before(currentDateWithOneDayAdded));
     }
 
     public static boolean isValidDay(int day, int year, String month) {

@@ -5,7 +5,7 @@ import '../css/googlefonts.css';
 import bg1 from '../assets/img/bg1.jpg.webp';
 import constants from '../utils/constants.json';
 import Cookies from 'js-cookie';
-import { trimFormData } from '../utils/utilityHelper';
+import { trimFormData } from '../utils/helpers/validationHelper';
 
 let loginData = {};
 

@@ -46,7 +46,7 @@ public interface EntryMonthRepository extends JpaRepository<EntryMonth, UUID> {
             nativeQuery = true)
     void deleteEntryMonth(@Param(value = "entryMonthId") UUID entryMonthId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE EXPENSE_RECORDER.entry_month " +
             "SET month_entrycount = :entryCount, month_itemcount = :itemCount " +
             "WHERE entrymonthid = :entryMonthId", nativeQuery = true)

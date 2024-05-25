@@ -23,7 +23,6 @@ import net.expenses.recorder.service.EntryYearService;
 import net.expenses.recorder.service.ItemService;
 import net.expenses.recorder.service.UserService;
 import net.expenses.recorder.utils.CommonConstants;
-import net.expenses.recorder.utils.CommonUtils;
 import net.expenses.recorder.validation.EntryValidation;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +71,14 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
         entry.setMonthName(monthName);
         entry.setCreationTime(currentTimeStamp);
         entry.setLastModified(currentTimeStamp);
-        entry.setEntryMonth(getEntryDate(monthName, entryForm.getYear(), entryForm.getDay()));
+
+        Date inputDate = getEntryDate(monthName, entryForm.getYear(), entryForm.getDay());
+        try {
+            if (EntryValidation.isValidDateSelection(inputDate)) entry.setEntryMonth(inputDate);
+            else throw new InvalidInputException("Invalid Entry date input.");
+        } catch (ParseException exception) {
+            throw new EntryException("Invalid Entry date selection!", exception);
+        }
 
         String desc = entryForm.getDescription();
         entry.setDescription(desc != null ? desc.trim() : null);
@@ -112,14 +119,20 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
             entry.setLastModified(currentTimeStamp);
 
             entry.setEntryName(entryModifyFormDto.getEntryName());
-            entry.setEntryMonth(getEntryDate(monthName, entryModifyFormDto.getYear(), entryModifyFormDto.getDay()));
+
+            Date inputDate = getEntryDate(monthName, entryModifyFormDto.getYear(), entryModifyFormDto.getDay());
+            if (EntryValidation.isValidDateSelection(inputDate)) entry.setEntryMonth(inputDate);
+            else throw new InvalidInputException("Invalid Entry date input.");
+
             entry = entryRepository.save(entry);
             entryYearService.createEntryYear(entry);
             entryMonthService.createEntryMonth(entry);
             return new EntryReferenceDto(entry.getEntryId().toString(), getFormattedDate(entry.getEntryMonth(), MONTH_FORMAT),
                     getFormattedDate(entry.getEntryMonth(), YEAR_FORMAT));
         } catch (PersistenceException | IllegalArgumentException exception) {
-            throw new EntryException("Invalid Entry selection!");
+            throw new EntryException("Invalid Entry selection!", exception);
+        } catch (ParseException exception) {
+            throw new EntryException("Invalid Entry date selection!", exception);
         }
     }
 
@@ -154,7 +167,6 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
     public List<EntryDto> getAllEntriesByEntryMonth(User user, String year, String month) {
         EntryValidation.validateEntryYear(year);
         int monthIndex = getMonthIndex(getMonthByName(month));
-        String entryMonth = year + "-" + monthIndex + "-1";
         String start = year + "-" + monthIndex + "-1";
         int lastDateOfMonth = EntryValidation.getMonthLastDate(Integer.parseInt(year), monthIndex);
 
@@ -274,18 +286,15 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
     }
 
     private Date getEntryDate(MonthName monthName, int year, int day) {
-        if (year >= ENTRY_MIN_YEAR && year <= CommonUtils.ENTRY_MAX_YEAR()) {
-            int monthIndex = getMonthIndex(monthName);
-            if (monthIndex <= 0) {
-                throw new InvalidInputException("Invalid month name input. Month name should be at" +
-                        " least first three letters of the actual month.");
-            }
-            return Date.valueOf(getDateString(monthName, year, day));
+        int monthIndex = getMonthIndex(monthName);
+        if (monthIndex < 1 || !EntryValidation.isValidDay(day, year, monthName.getMonth())) {
+            throw new InvalidInputException("Invalid month name input. Month name should be at" +
+                    " least first three letters of the actual month.");
         }
-        throw new InvalidInputException("Year selection must be from " + ENTRY_MIN_YEAR + " to " + CommonUtils.ENTRY_MAX_YEAR());
+        return Date.valueOf(getDateString(monthIndex, year, day));
     }
 
-    private String getDateString(MonthName monthName, int year, int day) {
-        return year + "-" + getMonthIndex(monthName) + "-" + day;
+    private String getDateString(int monthIndex, int year, int day) {
+        return year + "-" + monthIndex + "-" + day;
     }
 }

@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button';
 
 import constants from '../utils/constants.json';
 import Cookies from 'js-cookie';
-import { trimFormData } from '../utils/utilityHelper';
+import { trimFormData } from '../utils/helpers/validationHelper';
 
 let editProfileData = {};
 

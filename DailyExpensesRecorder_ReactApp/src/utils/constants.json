@@ -2,5 +2,6 @@
     "EMAIL_REGEX": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
     "PASSWORD_REGEX": "(?=\\S+$).{8,}$",
     "PHONE_REGEX": "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$",
-    "BEARER_TOKEN": "BEARER_TOKEN"
+    "BEARER_TOKEN": "BEARER_TOKEN",
+    "ENTRY_MIN_YEAR": 2020
 }

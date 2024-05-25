@@ -2,7 +2,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import constants from '../utils/constants.json';
-import { trimFormData, getMonthLastDate, getMonthIndex } from '../utils/validationHelper';
+import { trimFormData, getMonthLastDate, getMonthIndex, isValidMonthName, isValidDateSelection, isValidYear } from '../utils/helpers/validationHelper';
+import { getEntryMaxEligibleYearSelection } from "../utils/helpers/entryHelper";
 import backicon2 from "../assets/backicon2.svg";
 
 let modifyEntryData = {};
@@ -98,15 +99,11 @@ const ModifyEntry = () => {
             setNameValidationError("Invalid Name selection.");
             return false;
         }
-        if (!month.match(/\S/)) {
-            setNameValidationError("Invalid Name selection.");
-            return false;
-        }
         if (month == null) {
             setMonthValidationError("Select Month to proceed.");
             return false;
         }
-        if (!month.match(/\S/)) {
+        if (!isValidMonthName(month)) {
             setMonthValidationError("Invalid Month selection.");
             return false;
         }
@@ -114,8 +111,9 @@ const ModifyEntry = () => {
             setYearValidationError("Select Year to proceed.");
             return false;
         }
-        if (isNaN(year) || !(year >= 1950 && year <= 2099)) {
-            setYearValidationError("Invalid Year selection.");
+        if (!isValidYear(year)) {
+            setYearValidationError("Year selection should be from " + constants.ENTRY_MIN_YEAR +
+                " to present year " + getEntryMaxEligibleYearSelection());
             return false;
         }
         if (day == null) {
@@ -123,7 +121,14 @@ const ModifyEntry = () => {
             return false;
         }
         if (isNaN(day) || !(day > 0 && day <= getMonthLastDate(year, getMonthIndex(month)))) {
-            setDayValidationError("Invalid Date selection");
+            setDayValidationError("Invalid Date selection. Date should be between 1st to last date" +
+                " of the selected month. Ex: For January -> 1 to 31");
+            return false;
+        }
+        if (!isValidDateSelection(year, month, day)) {
+            setYearValidationError("Entry Year must be equal or before the present date.");
+            setMonthValidationError("Entry Month must be equal or before the present date.");
+            setDayValidationError("Entry Date must be equal or before the present date.");
             return false;
         }
         return true;

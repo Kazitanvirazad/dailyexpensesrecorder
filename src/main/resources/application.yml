@@ -2,7 +2,7 @@
 
 spring:
   application:
-    name: ${NAME:daily expenses recorder}
+    name: ${NAME:Daily Expenses Recorder}
   profiles:
     active: ${ACTIVE_PROFILE:local}
 

@@ -11,9 +11,10 @@ public interface CommonConstants extends StaticTextResource, CommonUtils {
     String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&()_+={[}]<>])(?=\\S+$).{8,}$";
     String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     String PHONE_REGEX = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$";
-    int ENTRY_MIN_YEAR = 1950;
+    int ENTRY_MIN_YEAR = 2020;
     String MONTH_FORMAT = "MMMM";
     String WEEKDAY_FORMAT = "EEEE";
+    String YEAR_FORMAT = "yyyy";
     String DAY_FORMAT = "d";
-    String DATE_FORMAT = "yyyy-MM-d";
+    String DATE_FORMAT = "yyyy-M-d";
 }
