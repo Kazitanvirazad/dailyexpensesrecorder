@@ -2,8 +2,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import constants from '../utils/constants.json';
-import { trimFormData, getMonthLastDate, getMonthIndex, isValidMonthName, isValidDateSelection, isValidYear } from '../utils/helpers/validationHelper';
-import { getEntryMaxEligibleYearSelection } from "../utils/helpers/entryHelper";
+import {
+    trimFormData, isValidMonthName, isValidDateSelection, isValidYear, isValidDay
+} from '../utils/helpers/validationHelper';
 import backicon2 from "../assets/backicon2.svg";
 
 let modifyEntryData = {};
@@ -104,7 +105,8 @@ const ModifyEntry = () => {
             return false;
         }
         if (!isValidMonthName(month)) {
-            setMonthValidationError("Invalid Month selection.");
+            setMonthValidationError("Invalid month name input. Month name should be at" +
+                " least first three letters of the actual month. Ex: January -> Jan");
             return false;
         }
         if (year == null) {
@@ -112,23 +114,24 @@ const ModifyEntry = () => {
             return false;
         }
         if (!isValidYear(year)) {
-            setYearValidationError("Year selection should be from " + constants.ENTRY_MIN_YEAR +
-                " to present year " + getEntryMaxEligibleYearSelection());
+            setYearValidationError("Invalid Year selection. Entry year selection must be from "
+                + constants.ENTRY_MIN_YEAR + " to the current year.");
             return false;
         }
         if (day == null) {
             setDayValidationError("Select Date to proceed.");
             return false;
         }
-        if (isNaN(day) || !(day > 0 && day <= getMonthLastDate(year, getMonthIndex(month)))) {
+        if (!isValidDay(day, year, month)) {
             setDayValidationError("Invalid Date selection. Date should be between 1st to last date" +
                 " of the selected month. Ex: For January -> 1 to 31");
             return false;
         }
         if (!isValidDateSelection(year, month, day)) {
-            setYearValidationError("Entry Year must be equal or before the present date.");
-            setMonthValidationError("Entry Month must be equal or before the present date.");
-            setDayValidationError("Entry Date must be equal or before the present date.");
+            setYearValidationError("Entry year must be from " +
+                constants.ENTRY_MIN_YEAR + " to the current date.");
+            setMonthValidationError("Entry month must be equal or before the present month.");
+            setDayValidationError("Entry date must be equal or before the present date.");
             return false;
         }
         return true;
@@ -221,34 +224,34 @@ const ModifyEntry = () => {
                                     </div>
                                     <form className="signin-form" style={{ marginBottom: "80px" }}>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
-                                            <input className="form-control" onChange={handleChange}
+                                            <input className="form-control" onInput={handleChange}
                                                 type="text" name="entryName" data-attrname="entryName" defaultValue={entry && entry.entryName}
                                                 id="entryName" required={true} />
                                             <label className="form-control-placeholder" htmlFor="entryName">Enter Name</label>
                                             <div className="error_desc">{nameValidationError && nameValidationError}</div>
                                         </div>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
-                                            <input className="form-control" onChange={handleChange}
+                                            <input className="form-control" onInput={handleChange}
                                                 type="text" name="month" data-attrname="month" defaultValue={entry && entry.month} id="month" required={true} />
                                             <label className="form-control-placeholder" htmlFor="month">Add Month</label>
                                             <div className="error_desc">{monthValidationError && monthValidationError}</div>
                                         </div>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
-                                            <input className="form-control" onChange={handleChange}
+                                            <input className="form-control" onInput={handleChange}
                                                 type="text" name="year" data-attrname="year" defaultValue={entry && entry.year}
                                                 id="year" required={true} />
                                             <label className="form-control-placeholder" htmlFor="year">Add Year</label>
                                             <div className="error_desc">{yearValidationError && yearValidationError}</div>
                                         </div>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
-                                            <input className="form-control" onChange={handleChange}
+                                            <input className="form-control" onInput={handleChange}
                                                 type="text" name="description" data-attrname="day" defaultValue={entry && entry.day}
                                                 id="day" required={true} />
                                             <label className="form-control-placeholder" htmlFor="day">Enter Date</label>
                                             <div className="error_desc">{dayValidationError && dayValidationError}</div>
                                         </div>
                                         <div className="form-group mb-5" style={{ marginTop: "50px" }}>
-                                            <input className="form-control" onChange={handleChange}
+                                            <input className="form-control" onInput={handleChange}
                                                 type="text" name="description" data-attrname="description" defaultValue={entry && entry.desc} id="description" required={true} />
                                             <label className="form-control-placeholder" htmlFor="description">Add Description</label>
                                         </div>

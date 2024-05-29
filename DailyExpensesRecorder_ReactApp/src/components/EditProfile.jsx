@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import '../css/signuplogin.css';
-import '../css/googlefonts.css';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
@@ -24,6 +22,8 @@ const EditProfile = () => {
     const [avatarList, setAvatarList] = useState([]);
 
     const [selectedAvatar, setSelectedAvatar] = useState(null);
+
+    const [user, setUser] = useState({});
 
     const [showModal, setShowModal] = useState(false);
 
@@ -69,7 +69,7 @@ const EditProfile = () => {
         event.preventDefault();
         let name = event.currentTarget.dataset.attrname;
         let value = event.target.value;
-        editProfileData[name] = value;
+        editProfileData[name] = value ? value : null;
         setFirstnameValidationError(null);
         setLastNameValidationError(null);
         setPhoneValidationError(null);
@@ -183,10 +183,10 @@ const EditProfile = () => {
         }
 
         let hostname = import.meta.env.VITE_API_HOSTNAME;
-        let avatarapi = import.meta.env.VITE_API_GETAVATAR;
-        let method = import.meta.env.VITE_API_METHOD_GETAVATAR;
+        let userDetailapi = import.meta.env.VITE_API_USERDETAIL;
+        let method = import.meta.env.VITE_API_METHOD_USERDETAIL;
 
-        fetch(hostname + avatarapi, {
+        fetch(hostname + userDetailapi, {
             method: method,
             headers: {
                 "Authorization": "Bearer " + token
@@ -200,7 +200,13 @@ const EditProfile = () => {
             }
         }).then(data => {
             if (data && data.data) {
+                const userData = data.data;
+                setUser(userData);
                 setSelectedAvatar(data.data.avatarEncodedImage);
+                editProfileData["firstName"] = userData.firstName;
+                editProfileData["lastName"] = userData.lastName;
+                editProfileData["bio"] = userData.bio;
+                editProfileData["phone"] = userData.phone;
             }
         }).catch(err => {
             console.log(err);
@@ -215,7 +221,6 @@ const EditProfile = () => {
 
     return (
         <>
-            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"></link>
             <Modal show={showModal} onHide={handleModalClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Select your avatar</Modal.Title>
@@ -252,29 +257,33 @@ const EditProfile = () => {
                                     </div>
                                     <form className="signin-form">
                                         <div className="form-group mt-3">
-                                            <input className="form-control" onChange={handleChange}
-                                                type="text" name="firstname" data-attrname="firstName" defaultValue=""
+                                            <input className="form-control" onInput={handleChange}
+                                                type="text" name="firstname" data-attrname="firstName"
+                                                defaultValue={user.firstName && user.firstName}
                                                 id="firstname" required={true} />
                                             <label className="form-control-placeholder" htmlFor="firstname">First name</label>
                                             <div className="error_desc">{firstnameValidationError && firstnameValidationError}</div>
                                         </div>
                                         <div className="form-group mt-3">
-                                            <input className="form-control" onChange={handleChange}
-                                                type="text" name="lastname" data-attrname="lastName" defaultValue=""
+                                            <input className="form-control" onInput={handleChange}
+                                                type="text" name="lastname" data-attrname="lastName"
+                                                defaultValue={user.lastName && user.lastName}
                                                 id="lastname" required={true} />
                                             <label className="form-control-placeholder" htmlFor="lastname">Last name</label>
                                             <div className="error_desc">{lastNameValidationError && lastNameValidationError}</div>
                                         </div>
                                         <div className="form-group mt-3">
-                                            <input className="form-control" onChange={handleChange}
-                                                type="text" name="phone" data-attrname="phone" defaultValue=""
+                                            <input className="form-control" onInput={handleChange}
+                                                type="text" name="phone" data-attrname="phone"
+                                                defaultValue={user.phone && user.phone}
                                                 id="phone" required={true} />
                                             <label className="form-control-placeholder" htmlFor="phone">Phone</label>
                                             <div className="error_desc">{phoneValidationError && phoneValidationError}</div>
                                         </div>
                                         <div className="form-group mt-3">
-                                            <input className="form-control" onChange={handleChange}
-                                                type="text" name="bio" data-attrname="bio" defaultValue=""
+                                            <input className="form-control" onInput={handleChange}
+                                                type="text" name="bio" data-attrname="bio"
+                                                defaultValue={user.bio && user.bio}
                                                 id="bio" required={true} />
                                             <label className="form-control-placeholder" htmlFor="bio">Bio</label>
                                             <div className="error_desc">{bioValidationError && bioValidationError}</div>

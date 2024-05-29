@@ -60,10 +60,10 @@ const Home = () => {
             return;
         }
         let hostname = import.meta.env.VITE_API_HOSTNAME;
-        let loginapi = import.meta.env.VITE_API_USERDETAIL;
+        let userDetailapi = import.meta.env.VITE_API_USERDETAIL;
         let method = import.meta.env.VITE_API_METHOD_USERDETAIL;
 
-        fetch(hostname + loginapi, {
+        fetch(hostname + userDetailapi, {
             method: method,
             headers: {
                 "Authorization": "Bearer " + token

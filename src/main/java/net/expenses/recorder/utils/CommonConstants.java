@@ -17,4 +17,5 @@ public interface CommonConstants extends StaticTextResource, CommonUtils {
     String YEAR_FORMAT = "yyyy";
     String DAY_FORMAT = "d";
     String DATE_FORMAT = "yyyy-M-d";
+    String USER_JOINED_DATE_FORMAT = "MMMM,yyyy";
 }

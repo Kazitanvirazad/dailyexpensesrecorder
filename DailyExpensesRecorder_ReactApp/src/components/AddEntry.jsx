@@ -4,7 +4,9 @@ import Select from "react-select";
 import rawData from "../utils/rawData.json";
 import Cookies from 'js-cookie';
 import constants from '../utils/constants.json';
-import { trimFormData, getMonthLastDate, getMonthIndex, isValidMonthName, isValidDateSelection, isValidYear } from '../utils/helpers/validationHelper';
+import {
+    trimFormData, isValidMonthName, isValidDateSelection, isValidYear, isValidDay
+} from '../utils/helpers/validationHelper';
 import { getEntryYearSelectionData } from "../utils/helpers/entryHelper";
 import backicon2 from "../assets/backicon2.svg";
 
@@ -57,35 +59,38 @@ const AddEntry = () => {
             setNameValidationError("Invalid Name selection.");
             return false;
         }
-        if (year == null) {
-            setYearValidationError("Select Year to proceed.");
-            return false;
-        }
-        if (!isValidYear(year)) {
-            setYearValidationError("Invalid Year selection.");
-            return false;
-        }
         if (month == null) {
             setMonthValidationError("Select Month to proceed.");
             return false;
         }
         if (!isValidMonthName(month)) {
-            setMonthValidationError("Invalid Month selection.");
+            setMonthValidationError("Invalid month name input. Month name should be at" +
+                " least first three letters of the actual month. Ex: January -> Jan");
+            return false;
+        }
+        if (year == null) {
+            setYearValidationError("Select Year to proceed.");
+            return false;
+        }
+        if (!isValidYear(year)) {
+            setYearValidationError("Invalid Year selection. Entry year selection must be from "
+                + constants.ENTRY_MIN_YEAR + " to the current year.");
             return false;
         }
         if (day == null) {
             setDayValidationError("Enter Date to proceed.");
             return false;
         }
-        if (isNaN(day) || !(day > 0 && day <= getMonthLastDate(year, getMonthIndex(month)))) {
+        if (!isValidDay(day, year, month)) {
             setDayValidationError("Invalid Date selection. Date should be between 1st to last date" +
                 " of the selected month. Ex: For January -> 1 to 31");
             return false;
         }
         if (!isValidDateSelection(year, month, day)) {
-            setYearValidationError("Entry Year must be equal or before the present date.");
-            setMonthValidationError("Entry Month must be equal or before the present date.");
-            setDayValidationError("Entry Date must be equal or before the present date.");
+            setYearValidationError("Entry year must be from " +
+                constants.ENTRY_MIN_YEAR + " to the current date.");
+            setMonthValidationError("Entry month must be equal or before the present month.");
+            setDayValidationError("Entry date must be equal or before the present date.");
             return false;
         }
         return true;

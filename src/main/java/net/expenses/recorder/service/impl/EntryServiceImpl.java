@@ -84,7 +84,7 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
         entry.setDescription(desc != null ? desc.trim() : null);
         entry.setAmount(0.00d);
         entry.setItemCount(0);
-        entry.setEntryName(entryForm.getEntryName());
+        entry.setEntryName(entryForm.getEntryName().trim());
 
         userService.incrementEntry(user);
         entry = entryRepository.save(entry);
@@ -103,7 +103,7 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
 
         try {
             Entry entry = entryRepository.
-                    getReferenceById(UUID.fromString(entryModifyFormDto.getEntry_id()));
+                    getReferenceById(UUID.fromString(entryModifyFormDto.getEntry_id().trim()));
 
             EntryYear entryYear = entryYearService.getEntryYearByEntry(entry);
             entryYearService.decrementEntryFromEntryYear(entryYear, entry.getItemCount());
@@ -113,12 +113,12 @@ public class EntryServiceImpl implements EntryService, CommonConstants {
 
             entry.setMonthName(monthName);
             if (StringUtils.hasText(entryModifyFormDto.getDescription()))
-                entry.setDescription(entryModifyFormDto.getDescription());
+                entry.setDescription(entryModifyFormDto.getDescription().trim());
 
             Timestamp currentTimeStamp = getCurrentTimeStamp();
             entry.setLastModified(currentTimeStamp);
 
-            entry.setEntryName(entryModifyFormDto.getEntryName());
+            entry.setEntryName(entryModifyFormDto.getEntryName().trim());
 
             Date inputDate = getEntryDate(monthName, entryModifyFormDto.getYear(), entryModifyFormDto.getDay());
             if (EntryValidation.isValidDateSelection(inputDate)) entry.setEntryMonth(inputDate);

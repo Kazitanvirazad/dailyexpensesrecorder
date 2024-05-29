@@ -1,7 +1,8 @@
 "use strict";
 
 import constants from "../constants.json";
-import { getEntryMaxEligibleYearSelection } from "./entryHelper.js";
+
+const monthSet = new Set(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "jan", "feb", "mar", "apr", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]);
 
 export const trimFormData = (formData) => {
     Object.keys(formData).forEach(key => {
@@ -62,17 +63,27 @@ export const isValidDateSelection = (year, month, day) => {
     if (!isValidMonthName(month)) {
         return false;
     }
-    let inputDateString = year + "-" + getMonthIndex(month) + "-" + day;
-    let inputDateMillis = Date.parse(inputDateString);
-    let inputDate = new Date(inputDateMillis);
-    return inputDate == new Date() || inputDate < new Date();
+    let inputDateMonthIndex = getMonthIndex(month);
+    if (inputDateMonthIndex < 1) {
+        return false;
+    }
+    let inputDateString = year + "-" + inputDateMonthIndex + "-" + day;
+    let minEligibleEntryDateString = constants.ENTRY_MIN_YEAR + "-1-1";
+
+    let inputDate = new Date(inputDateString);
+    let minEligibleEntryDate = new Date(minEligibleEntryDateString);
+
+    return inputDate >= minEligibleEntryDate && inputDate <= new Date();
 };
 
 export const isValidMonthName = (monthName) => {
-    const monthSet = new Set(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "jan", "feb", "mar", "apr", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]);
     return monthName != null && monthName.length >= 3 && monthSet.has(monthName.toLowerCase()) && getMonthIndex(monthName) > 0;
 };
 
 export const isValidYear = (year) => {
-    return !isNaN(year) && (year >= constants.ENTRY_MIN_YEAR && year <= getEntryMaxEligibleYearSelection());
+    return !isNaN(year) && (year >= constants.ENTRY_MIN_YEAR);
+};
+
+export const isValidDay = (day, year, month) => {
+    return !isNaN(day) && (day > 0 && day <= getMonthLastDate(year, getMonthIndex(month)));
 };

@@ -31,8 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 /**
@@ -160,10 +158,10 @@ public class UserServiceImpl implements UserService, CommonConstants {
     public UserDto getUserDetail() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Avatar avatar = user.getAvatar();
-        Timestamp dateCreated = user.getDateCreated();
-        DateFormat dateFormat = new SimpleDateFormat("MMMM,yyyy");
-        String formattedDate = dateFormat.format(dateCreated);
-        return new UserDto(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhone(), formattedDate, user.getBio(), user.getEntryCount(), avatar != null ? avatar.getAvatarEncodedImage() : null);
+        String formattedDate = getFormattedDate(user.getDateCreated(), USER_JOINED_DATE_FORMAT);
+        return new UserDto(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhone(),
+                formattedDate, user.getBio(), user.getEntryCount(), avatar != null ?
+                avatar.getAvatarEncodedImage() : null);
     }
 
     @Transactional
@@ -201,22 +199,27 @@ public class UserServiceImpl implements UserService, CommonConstants {
 
     private void updateUser(User user, UserUpdateFormDto userUpdateFormDto) {
         if (user != null && userUpdateFormDto != null) {
-            if (userUpdateFormDto.getFirstName() != null) {
+            if (userUpdateFormDto.getFirstName() != null &&
+                    !userUpdateFormDto.getFirstName().trim().equals(user.getFirstName())) {
                 user.setFirstName(userUpdateFormDto.getFirstName().trim());
             }
-            if (userUpdateFormDto.getLastName() != null) {
+            if (userUpdateFormDto.getLastName() != null &&
+                    !userUpdateFormDto.getLastName().trim().equals(user.getLastName())) {
                 user.setLastName(userUpdateFormDto.getLastName().trim());
             }
-            if (userUpdateFormDto.getBio() != null) {
+            if (userUpdateFormDto.getBio() != null &&
+                    !userUpdateFormDto.getBio().trim().equals(user.getBio())) {
                 user.setBio(userUpdateFormDto.getBio().trim());
             }
-            if (userUpdateFormDto.getAvatarId() != null) {
-                if (!user.getAvatar().getAvatarId().equals(userUpdateFormDto.getAvatarId())) {
-                    Avatar avatar = avatarService.getAvatarById(userUpdateFormDto.getAvatarId());
-                    user.setAvatar(avatar);
-                }
+
+
+            if (userUpdateFormDto.getAvatarId() != null &&
+                    !user.getAvatar().getAvatarId().equals(userUpdateFormDto.getAvatarId())) {
+                Avatar avatar = avatarService.getAvatarById(userUpdateFormDto.getAvatarId());
+                user.setAvatar(avatar);
             }
-            if (userUpdateFormDto.getPhone() != null && !user.getPhone().equals(userUpdateFormDto.getPhone().trim())) {
+            if (userUpdateFormDto.getPhone() != null
+                    && !user.getPhone().equals(userUpdateFormDto.getPhone().trim())) {
                 if (isUserExistsByPhone(userUpdateFormDto.getPhone().trim())) {
                     throw new InvalidInputException("Phone number is not available. Try another number.");
                 }

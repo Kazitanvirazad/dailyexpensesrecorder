@@ -11,8 +11,3 @@ export const getEntryYearSelectionData = () => {
     }
     return yearSelectionData;
 };
-
-export const getEntryMaxEligibleYearSelection = () => {
-    let currentDate = new Date();
-    return currentDate.getFullYear();
-};
