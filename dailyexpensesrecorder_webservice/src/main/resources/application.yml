@@ -1,0 +1,18 @@
+# Author: Kazi Tanvir Azad
+
+spring:
+  application:
+    name: ${NAME:dailyexpensesrecorder_webservice}
+  profiles:
+    active: ${ACTIVE_PROFILE:local}
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /expenses
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics,prometheus,info,beans

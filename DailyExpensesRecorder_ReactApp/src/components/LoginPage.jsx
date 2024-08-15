@@ -132,7 +132,8 @@ const LoginPage = () => {
                     <div className="row justify-content-center">
                         <div className="col-md-7 col-lg-5">
                             <div className="wrap">
-                                <div className="img" style={{ backgroundImage: `url(${bg1})` }}></div>
+                                <div className="img" style={{ backgroundImage: `url(${bg1})`}}>
+								</div>
                                 <div className="login-wrap p-4 p-md-5">
                                     <div className="d-flex">
                                         <div className="w-100">
